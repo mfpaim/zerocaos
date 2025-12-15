@@ -5,6 +5,8 @@ import { cn } from '@/lib/utils';
 import { groups } from '@/data/mockData';
 import { Button } from '@/components/ui/button';
 import { useRequests } from '@/hooks/useRequests';
+import { UserProfile } from '@/components/UserProfile';
+import { useUser } from '@/hooks/useUser';
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
@@ -17,6 +19,7 @@ export function AppSidebar() {
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const { archivedIds } = useRequests();
+  const { user, updateUser } = useUser();
 
   const totalRequests = groups.reduce((acc, g) => acc + g.requestCount, 0);
 
@@ -47,10 +50,15 @@ export function AppSidebar() {
       )}>
         {/* Logo */}
         <div className="p-6 border-b border-sidebar-border">
-          <h1 className="text-2xl font-bold text-sidebar-foreground">
-            Zero<span className="text-sidebar-primary">Caos</span>
-          </h1>
-          <p className="text-sm text-sidebar-foreground/60 mt-1">Gestão de Demandas</p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-sidebar-foreground">
+                Zero<span className="text-sidebar-primary">Caos</span>
+              </h1>
+              <p className="text-sm text-sidebar-foreground/60 mt-1">Gestão de Demandas</p>
+            </div>
+            <UserProfile user={user} onUserUpdate={updateUser} />
+          </div>
         </div>
 
         {/* Navigation */}
