@@ -1,19 +1,22 @@
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, BarChart3, Menu, X } from 'lucide-react';
+import { LayoutDashboard, Users, BarChart3, Menu, X, Archive } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { groups } from '@/data/mockData';
 import { Button } from '@/components/ui/button';
+import { useRequests } from '@/hooks/useRequests';
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
   { name: 'Grupos', href: '/grupos', icon: Users },
   { name: 'Estatísticas', href: '/estatisticas', icon: BarChart3 },
+  { name: 'Arquivados', href: '/arquivados', icon: Archive },
 ];
 
 export function AppSidebar() {
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
+  const { archivedIds } = useRequests();
 
   const totalRequests = groups.reduce((acc, g) => acc + g.requestCount, 0);
 
@@ -76,6 +79,16 @@ export function AppSidebar() {
                       : "bg-sidebar-accent text-sidebar-foreground/60"
                   )}>
                     {totalRequests}
+                  </span>
+                )}
+                {item.name === 'Arquivados' && archivedIds.size > 0 && (
+                  <span className={cn(
+                    "ml-auto text-xs px-2 py-0.5 rounded-full",
+                    isActive 
+                      ? "bg-sidebar-primary-foreground/20 text-sidebar-primary-foreground" 
+                      : "bg-sidebar-accent text-sidebar-foreground/60"
+                  )}>
+                    {archivedIds.size}
                   </span>
                 )}
               </Link>
