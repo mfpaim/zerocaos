@@ -72,10 +72,19 @@ export function RequestsProvider({ children }: { children: ReactNode }) {
   );
 }
 
+const defaultContext: RequestsContextType = {
+  requests: initialRequests,
+  resolvedIds: new Set(),
+  archivedIds: new Set(),
+  markAsResolved: () => {},
+  archiveRequest: () => {},
+  deleteRequest: () => {},
+  getActiveRequests: () => initialRequests,
+  getArchivedRequests: () => [],
+  resolvedCount: 0,
+};
+
 export function useRequests() {
   const context = useContext(RequestsContext);
-  if (!context) {
-    throw new Error('useRequests must be used within a RequestsProvider');
-  }
-  return context;
+  return context ?? defaultContext;
 }
