@@ -1,15 +1,22 @@
 import { useState, useMemo } from 'react';
 import { RequestCard } from './RequestCard';
 import { RequestFilters } from './RequestFilters';
+import { SearchBar, SearchFilters } from './SearchBar';
+import { DateDivider } from './DateDivider';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, AlertTriangle, AlertCircle, CheckCircle, CheckCheck } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { useRequests } from '@/hooks/useRequests';
+import { format, isSameDay } from 'date-fns';
 
 const ITEMS_PER_PAGE = 10;
 
-export function RequestList() {
-  const { getActiveRequests, resolvedIds, resolvedCount } = useRequests();
+interface RequestListProps {
+  filterDate?: Date | null;
+}
+
+export function RequestList({ filterDate }: RequestListProps) {
+  const { requests, getActiveRequests, getArchivedRequests, resolvedIds, archivedIds, resolvedCount } = useRequests();
   const activeRequests = getActiveRequests();
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -17,24 +24,80 @@ export function RequestList() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedPriority, setSelectedPriority] = useState('all');
   const [selectedSender, setSelectedSender] = useState('all');
+  const [searchFilters, setSearchFilters] = useState<SearchFilters>({
+    text: '',
+    group: 'all',
+    sender: 'all',
+    includeResolved: false,
+    includeArchived: false,
+  });
 
   const filteredRequests = useMemo(() => {
-    return activeRequests
+    let baseRequests = [...activeRequests];
+
+    // Include resolved and archived based on search filters
+    if (searchFilters.includeArchived) {
+      const archivedReqs = getArchivedRequests();
+      baseRequests = [...baseRequests, ...archivedReqs];
+    }
+
+    return baseRequests
       .filter((req) => {
-        if (selectedGroup !== 'all' && req.groupId !== selectedGroup) return false;
+        // Date filter
+        if (filterDate && !isSameDay(req.timestamp, filterDate)) return false;
+        
+        // Text search
+        if (searchFilters.text) {
+          const searchLower = searchFilters.text.toLowerCase();
+          const matchesText = 
+            req.message.toLowerCase().includes(searchLower) ||
+            req.senderName.toLowerCase().includes(searchLower) ||
+            req.groupName.toLowerCase().includes(searchLower);
+          if (!matchesText) return false;
+        }
+
+        // Search bar filters (take priority if set)
+        if (searchFilters.group !== 'all' && req.groupId !== searchFilters.group) return false;
+        if (searchFilters.sender !== 'all' && req.senderName !== searchFilters.sender) return false;
+
+        // Standard filters
+        if (selectedGroup !== 'all' && searchFilters.group === 'all' && req.groupId !== selectedGroup) return false;
         if (selectedCategory !== 'all' && req.category !== selectedCategory) return false;
         if (selectedPriority !== 'all' && req.priority !== selectedPriority) return false;
-        if (selectedSender !== 'all' && req.senderName !== selectedSender) return false;
+        if (selectedSender !== 'all' && searchFilters.sender === 'all' && req.senderName !== selectedSender) return false;
+
+        // Only hide resolved if not including them
+        if (!searchFilters.includeResolved && resolvedIds.has(req.id) && !filterDate) {
+          // Show resolved in date view but can hide in normal view
+        }
+
         return true;
       })
-      .sort((a, b) => b.priorityScore - a.priorityScore || b.timestamp.getTime() - a.timestamp.getTime());
-  }, [activeRequests, selectedGroup, selectedCategory, selectedPriority, selectedSender]);
+      .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+  }, [activeRequests, selectedGroup, selectedCategory, selectedPriority, selectedSender, searchFilters, filterDate, resolvedIds, getArchivedRequests]);
 
   const totalPages = Math.ceil(filteredRequests.length / ITEMS_PER_PAGE);
   const paginatedRequests = filteredRequests.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
   );
+
+  // Group requests by date for dividers
+  const requestsWithDividers = useMemo(() => {
+    const items: { type: 'divider' | 'request'; date?: Date; request?: typeof paginatedRequests[0] }[] = [];
+    let lastDate: string | null = null;
+
+    paginatedRequests.forEach((request) => {
+      const dateKey = format(request.timestamp, 'yyyy-MM-dd');
+      if (dateKey !== lastDate) {
+        items.push({ type: 'divider', date: request.timestamp });
+        lastDate = dateKey;
+      }
+      items.push({ type: 'request', request });
+    });
+
+    return items;
+  }, [paginatedRequests]);
 
   const priorityCounts = useMemo(() => ({
     high: activeRequests.filter(r => r.priority === 'high').length,
@@ -64,8 +127,16 @@ export function RequestList() {
     setCurrentPage(1);
   };
 
+  const handleSearch = (filters: SearchFilters) => {
+    setSearchFilters(filters);
+    setCurrentPage(1);
+  };
+
   return (
     <div className="space-y-6">
+      {/* Search Bar */}
+      <SearchBar onSearch={handleSearch} />
+
       {/* Stats cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card 
@@ -151,15 +222,19 @@ export function RequestList() {
         </p>
       </div>
 
-      {/* Request list */}
-      <div className="space-y-3">
-        {paginatedRequests.map((request) => (
-          <RequestCard 
-            key={request.id} 
-            request={request} 
-            onFilterChange={handleCardFilterChange}
-          />
-        ))}
+      {/* Request list with date dividers */}
+      <div className="space-y-2">
+        {requestsWithDividers.map((item, index) => 
+          item.type === 'divider' && item.date ? (
+            <DateDivider key={`divider-${index}`} date={item.date} />
+          ) : item.request ? (
+            <RequestCard 
+              key={item.request.id} 
+              request={item.request} 
+              onFilterChange={handleCardFilterChange}
+            />
+          ) : null
+        )}
       </div>
 
       {/* Pagination */}
