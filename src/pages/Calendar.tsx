@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { RequestCalendar } from '@/components/RequestCalendar';
 import { RequestCard } from '@/components/RequestCard';
-import { DateDivider } from '@/components/DateDivider';
+
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { ArrowLeft, CalendarDays, ListFilter } from 'lucide-react';
@@ -57,17 +57,17 @@ const Calendar = () => {
         </div>
       </div>
 
-      {/* Main content grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-[400px_1fr] gap-6">
-        {/* Calendar sidebar */}
-        <div className="space-y-4">
+      {/* Main content - vertical layout */}
+      <div className="max-w-4xl mx-auto space-y-6">
+        {/* Calendar and stats section */}
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-4 items-start">
           <RequestCalendar onDateSelect={handleDateSelect} className="w-full" />
           
           {/* Quick stats for selected date */}
-          <Card className="p-4">
+          <Card className="p-4 md:min-w-[200px]">
             <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
               <ListFilter className="h-4 w-4" />
-              Resumo do dia
+              {format(selectedDate, "d MMM", { locale: ptBR })}
             </h4>
             <div className="grid grid-cols-2 gap-3">
               <div className="p-3 bg-priority-high-bg rounded-lg text-center">
@@ -84,7 +84,7 @@ const Calendar = () => {
               className="w-full mt-3"
               onClick={handleViewInDashboard}
             >
-              Ver no Dashboard com filtros
+              Ver no Dashboard
             </Button>
           </Card>
         </div>
@@ -93,7 +93,7 @@ const Calendar = () => {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold text-foreground">
-              Solicitações de {format(selectedDate, "d 'de' MMMM 'de' yyyy", { locale: ptBR })}
+              Solicitações de {format(selectedDate, "d 'de' MMMM", { locale: ptBR })}
             </h2>
             <span className="text-sm text-muted-foreground">
               {filteredRequests.length} {filteredRequests.length === 1 ? 'solicitação' : 'solicitações'}
@@ -107,13 +107,11 @@ const Calendar = () => {
               <p className="text-sm text-muted-foreground/70 mt-1">Selecione outro dia no calendário</p>
             </Card>
           ) : (
-            <div className="space-y-2">
-              <DateDivider date={selectedDate} />
-              
+            <div className="space-y-2 max-h-[60vh] overflow-y-auto pr-2">
               {/* Pending requests */}
               {pendingRequests.length > 0 && (
                 <div className="space-y-2">
-                  <p className="text-sm font-medium text-priority-high flex items-center gap-2 px-2">
+                  <p className="text-sm font-medium text-priority-high flex items-center gap-2 px-2 sticky top-0 bg-background py-2">
                     <span className="w-2 h-2 rounded-full bg-priority-high"></span>
                     Pendentes ({pendingRequests.length})
                   </p>
@@ -130,7 +128,7 @@ const Calendar = () => {
               {/* Resolved requests */}
               {resolvedRequests.length > 0 && (
                 <div className="space-y-2 mt-4">
-                  <p className="text-sm font-medium text-priority-low flex items-center gap-2 px-2">
+                  <p className="text-sm font-medium text-priority-low flex items-center gap-2 px-2 sticky top-0 bg-background py-2">
                     <span className="w-2 h-2 rounded-full bg-priority-low"></span>
                     Resolvidas ({resolvedRequests.length})
                   </p>
