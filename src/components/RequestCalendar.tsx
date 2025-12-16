@@ -8,9 +8,10 @@ import { ptBR } from 'date-fns/locale';
 
 interface RequestCalendarProps {
   onDateSelect?: (date: Date) => void;
+  className?: string;
 }
 
-export function RequestCalendar({ onDateSelect }: RequestCalendarProps) {
+export function RequestCalendar({ onDateSelect, className }: RequestCalendarProps) {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const { requests, resolvedIds } = useRequests();
 
@@ -61,7 +62,7 @@ export function RequestCalendar({ onDateSelect }: RequestCalendarProps) {
   }, [dayStats]);
 
   return (
-    <Card className="p-4">
+    <Card className={`p-4 ${className || ''}`}>
       <h3 className="font-semibold text-foreground mb-4">Calendário de Solicitações</h3>
       
       <Calendar
