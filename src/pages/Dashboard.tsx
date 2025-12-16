@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { RequestList } from '@/components/RequestList';
-import { RequestCalendar } from '@/components/RequestCalendar';
 import { DateIndicator } from '@/components/DateIndicator';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
@@ -8,14 +8,20 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 const Dashboard = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
-  const handleDateSelect = (date: Date) => {
-    setSelectedDate(date);
-  };
+  // Check for date in URL params (from calendar page)
+  useEffect(() => {
+    const dateParam = searchParams.get('date');
+    if (dateParam) {
+      setSelectedDate(new Date(dateParam));
+    }
+  }, [searchParams]);
 
   const clearDateFilter = () => {
     setSelectedDate(null);
+    setSearchParams({});
   };
 
   return (
@@ -25,7 +31,7 @@ const Dashboard = () => {
           <h1 className="text-2xl lg:text-3xl font-bold text-foreground">Dashboard</h1>
           <p className="text-muted-foreground mt-1">Gerencie as solicitações dos condomínios</p>
         </div>
-        <DateIndicator />
+        <DateIndicator clickable />
       </div>
 
       {selectedDate && (
@@ -40,12 +46,7 @@ const Dashboard = () => {
         </div>
       )}
 
-      <div className="grid grid-cols-1 xl:grid-cols-[1fr_320px] gap-6">
-        <RequestList filterDate={selectedDate} />
-        <div className="order-first xl:order-last">
-          <RequestCalendar onDateSelect={handleDateSelect} />
-        </div>
-      </div>
+      <RequestList filterDate={selectedDate} />
     </div>
   );
 };
