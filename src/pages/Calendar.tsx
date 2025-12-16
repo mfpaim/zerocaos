@@ -5,7 +5,7 @@ import { RequestCard } from '@/components/RequestCard';
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { ArrowLeft, CalendarDays, ListFilter } from 'lucide-react';
+import { ArrowLeft, CalendarDays } from 'lucide-react';
 import { useRequests } from '@/hooks/useRequests';
 import { format, isSameDay } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -28,10 +28,6 @@ const Calendar = () => {
 
   const handleDateSelect = (date: Date) => {
     setSelectedDate(date);
-  };
-
-  const handleViewInDashboard = () => {
-    navigate(`/?date=${selectedDate.toISOString()}`);
   };
 
   return (
@@ -58,36 +54,9 @@ const Calendar = () => {
       </div>
 
       {/* Main content - vertical layout */}
-      <div className="max-w-4xl mx-auto space-y-6">
-        {/* Calendar and stats section */}
-        <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-4 items-start">
-          <RequestCalendar onDateSelect={handleDateSelect} className="w-full" />
-          
-          {/* Quick stats for selected date */}
-          <Card className="p-4 md:min-w-[200px]">
-            <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
-              <ListFilter className="h-4 w-4" />
-              {format(selectedDate, "d MMM", { locale: ptBR })}
-            </h4>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="p-3 bg-priority-high-bg rounded-lg text-center">
-                <p className="text-2xl font-bold text-priority-high">{pendingRequests.length}</p>
-                <p className="text-xs text-muted-foreground">Pendentes</p>
-              </div>
-              <div className="p-3 bg-priority-low-bg rounded-lg text-center">
-                <p className="text-2xl font-bold text-priority-low">{resolvedRequests.length}</p>
-                <p className="text-xs text-muted-foreground">Resolvidas</p>
-              </div>
-            </div>
-            <Button 
-              variant="outline" 
-              className="w-full mt-3"
-              onClick={handleViewInDashboard}
-            >
-              Ver no Dashboard
-            </Button>
-          </Card>
-        </div>
+      <div className="max-w-5xl mx-auto space-y-6">
+        {/* Calendar with integrated stats */}
+        <RequestCalendar onDateSelect={handleDateSelect} className="w-full" />
 
         {/* Request list for selected date */}
         <div className="space-y-4">
