@@ -59,6 +59,8 @@ export default {
           "accent-foreground": "hsl(var(--sidebar-accent-foreground))",
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
+          "brand-start": "hsl(var(--sidebar-brand-start))",
+          "brand-end": "hsl(var(--sidebar-brand-end))",
         },
         priority: {
           high: "hsl(var(--priority-high))",

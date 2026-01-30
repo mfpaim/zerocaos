@@ -50,11 +50,11 @@ export function AppSidebar() {
         isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
       )}>
         {/* Logo */}
-        <div className="p-6 border-b border-sidebar-border">
+        <div className="p-6 border-b border-sidebar-border bg-gradient-to-br from-[hsl(var(--sidebar-brand-start)/0.08)] to-[hsl(var(--sidebar-brand-end)/0.08)]">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-sidebar-foreground">
-                Zero<span className="text-sidebar-primary">Caos</span>
+              <h1 className="text-2xl font-bold">
+                <span className="bg-gradient-to-r from-[hsl(142_40%_50%)] to-[hsl(197_71%_52%)] bg-clip-text text-transparent">Blue</span><span className="text-sidebar-primary">Sky</span>
               </h1>
               <p className="text-sm text-sidebar-foreground/60 mt-1">Gestão de Demandas</p>
             </div>

@@ -58,15 +58,17 @@
     --category-limpeza: 173 80% 40%;
     --category-outros: 220 9% 46%;
 
-    /* Sidebar - Gray with Orange pastel */
-    --sidebar-background: 220 10% 95%;
-    --sidebar-foreground: 220 15% 25%;
-    --sidebar-primary: 25 85% 55%;
+    /* Sidebar - WhatsApp Green to Sky Blue gradient palette */
+    --sidebar-background: 180 25% 97%;
+    --sidebar-foreground: 200 25% 20%;
+    --sidebar-primary: 197 71% 52%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 25 60% 92%;
-    --sidebar-accent-foreground: 220 15% 25%;
-    --sidebar-border: 220 10% 88%;
-    --sidebar-ring: 25 85% 55%;
+    --sidebar-accent: 160 35% 92%;
+    --sidebar-accent-foreground: 200 25% 20%;
+    --sidebar-border: 180 20% 88%;
+    --sidebar-ring: 197 71% 52%;
+    --sidebar-brand-start: 142 40% 50%;
+    --sidebar-brand-end: 197 71% 52%;
   }
 
   .dark {
@@ -106,15 +108,17 @@
     --priority-low: 142 71% 45%;
     --priority-low-bg: 142 71% 15%;
 
-    /* Sidebar dark - Gray with Orange pastel */
-    --sidebar-background: 220 15% 12%;
-    --sidebar-foreground: 220 10% 90%;
-    --sidebar-primary: 25 85% 55%;
+    /* Sidebar dark - WhatsApp Green to Sky Blue gradient palette */
+    --sidebar-background: 200 20% 10%;
+    --sidebar-foreground: 180 15% 90%;
+    --sidebar-primary: 197 71% 55%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 25 40% 20%;
-    --sidebar-accent-foreground: 220 10% 90%;
-    --sidebar-border: 220 15% 20%;
-    --sidebar-ring: 25 85% 55%;
+    --sidebar-accent: 180 25% 18%;
+    --sidebar-accent-foreground: 180 15% 90%;
+    --sidebar-border: 200 20% 18%;
+    --sidebar-ring: 197 71% 55%;
+    --sidebar-brand-start: 142 40% 45%;
+    --sidebar-brand-end: 197 71% 55%;
   }
 }
 
