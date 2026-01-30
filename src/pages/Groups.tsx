@@ -1,14 +1,25 @@
+import { useState } from 'react';
 import { groups, requests } from '@/data/mockData';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Users, MessageSquare, CheckCircle, XCircle } from 'lucide-react';
+import { Group } from '@/types/requests';
+import GroupMembersDialog from '@/components/GroupMembersDialog';
 
 const Groups = () => {
+  const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+
   const groupStats = groups.map((group) => {
     const groupRequests = requests.filter((r) => r.groupId === group.id);
     const highPriority = groupRequests.filter((r) => r.priority === 'high').length;
     return { ...group, highPriority, totalRequests: groupRequests.length };
   });
+
+  const handleMembersClick = (group: Group) => {
+    setSelectedGroup(group);
+    setDialogOpen(true);
+  };
 
   return (
     <div className="p-4 lg:p-8">
@@ -59,9 +70,9 @@ const Groups = () => {
         {groupStats.map((group) => (
           <Card key={group.id} className="p-5 bg-card hover:shadow-md transition-shadow">
             <div className="flex items-start justify-between">
-              <div>
+              <div className="flex-1">
                 <h3 className="font-semibold text-lg text-foreground">{group.name}</h3>
-                <div className="flex items-center gap-2 mt-2">
+                <div className="flex items-center gap-2 mt-2 flex-wrap">
                   <Badge variant={group.isActive ? 'default' : 'secondary'}>
                     {group.isActive ? (
                       <><CheckCircle className="h-3 w-3 mr-1" /> Ativo</>
@@ -75,6 +86,15 @@ const Groups = () => {
                     </Badge>
                   )}
                 </div>
+                {/* Members count - clickable */}
+                <button
+                  onClick={() => handleMembersClick(group)}
+                  className="flex items-center gap-1.5 mt-3 text-sm text-muted-foreground hover:text-sidebar-brand-start transition-colors group"
+                >
+                  <Users className="h-4 w-4 group-hover:text-sidebar-brand-start transition-colors" />
+                  <span className="font-medium">{group.members.length}</span>
+                  <span>participante{group.members.length !== 1 ? 's' : ''}</span>
+                </button>
               </div>
               <div className="text-right">
                 <p className="text-3xl font-bold text-foreground">{group.totalRequests}</p>
@@ -84,6 +104,16 @@ const Groups = () => {
           </Card>
         ))}
       </div>
+
+      {/* Members Dialog */}
+      {selectedGroup && (
+        <GroupMembersDialog
+          open={dialogOpen}
+          onOpenChange={setDialogOpen}
+          groupName={selectedGroup.name}
+          members={selectedGroup.members}
+        />
+      )}
     </div>
   );
 };
