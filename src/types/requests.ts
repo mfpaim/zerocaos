@@ -26,11 +26,19 @@ export interface Request {
   isResolved: boolean;
 }
 
+export interface GroupMember {
+  id: string;
+  name: string;
+  participationCount: number;
+  lastActivity: Date;
+}
+
 export interface Group {
   id: string;
   name: string;
   requestCount: number;
   isActive: boolean;
+  members: GroupMember[];
 }
 
 export const categoryLabels: Record<Category, string> = {

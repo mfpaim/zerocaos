@@ -1,11 +1,30 @@
-import { Request, Group, Category, categoryPriority, priorityScores } from '@/types/requests';
+import { Request, Group, GroupMember, Category, categoryPriority, priorityScores } from '@/types/requests';
+
+// Helper to create members
+const createMembers = (groupId: string): GroupMember[] => {
+  const memberNames: Record<string, string[]> = {
+    '1': ['Dona Gigi', 'Sra. Helena', 'Marta', 'Seu Antônio', 'Roberto Silva', 'Ana Maria', 'Carlos Eduardo', 'Fernanda Costa'],
+    '2': ['Sr. Carlos', 'Fernando', 'Giulia', 'Luciana', 'Pedro Henrique', 'Mariana Lima', 'João Victor'],
+    '3': ['Maria Clara', 'Ana Paula', 'Pedro', 'Ricardo', 'Beatriz Santos', 'Lucas Oliveira', 'Camila Souza', 'Rafael Martins', 'Julia Pereira'],
+    '4': ['João Pedro', 'Roberto', 'Carla', 'Silvia', 'Eduardo Costa', 'Patricia Lima'],
+    '5': ['Marcos', 'Renata', 'Bruno Alves', 'Sandra Rocha', 'Thiago Mendes'],
+  };
+
+  const names = memberNames[groupId] || [];
+  return names.map((name, index) => ({
+    id: `${groupId}-member-${index + 1}`,
+    name,
+    participationCount: Math.floor(Math.random() * 15) + 1,
+    lastActivity: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000),
+  }));
+};
 
 export const groups: Group[] = [
-  { id: '1', name: 'Condomínio Garbins', requestCount: 5, isActive: true },
-  { id: '2', name: 'Condomínio Moreno', requestCount: 4, isActive: true },
-  { id: '3', name: 'Residencial Aurora', requestCount: 3, isActive: true },
-  { id: '4', name: 'Edifício Central', requestCount: 4, isActive: true },
-  { id: '5', name: 'Vila das Flores', requestCount: 2, isActive: false },
+  { id: '1', name: 'Condomínio Garbins', requestCount: 5, isActive: true, members: createMembers('1') },
+  { id: '2', name: 'Condomínio Moreno', requestCount: 4, isActive: true, members: createMembers('2') },
+  { id: '3', name: 'Residencial Aurora', requestCount: 3, isActive: true, members: createMembers('3') },
+  { id: '4', name: 'Edifício Central', requestCount: 4, isActive: true, members: createMembers('4') },
+  { id: '5', name: 'Vila das Flores', requestCount: 2, isActive: false, members: createMembers('5') },
 ];
 
 const createRequest = (
