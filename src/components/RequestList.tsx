@@ -23,6 +23,7 @@ export function RequestList({ filterDate }: RequestListProps) {
   const [selectedGroup, setSelectedGroup] = useState('all');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedPriority, setSelectedPriority] = useState('all');
+  const [selectedRequestType, setSelectedRequestType] = useState('all');
   const [selectedSender, setSelectedSender] = useState('all');
   const [searchFilters, setSearchFilters] = useState<SearchFilters>({
     text: '',
@@ -64,6 +65,7 @@ export function RequestList({ filterDate }: RequestListProps) {
         if (selectedGroup !== 'all' && searchFilters.group === 'all' && req.groupId !== selectedGroup) return false;
         if (selectedCategory !== 'all' && req.category !== selectedCategory) return false;
         if (selectedPriority !== 'all' && req.priority !== selectedPriority) return false;
+        if (selectedRequestType !== 'all' && req.requestType !== selectedRequestType) return false;
         if (selectedSender !== 'all' && searchFilters.sender === 'all' && req.senderName !== selectedSender) return false;
 
         // Only hide resolved if not including them
@@ -74,7 +76,7 @@ export function RequestList({ filterDate }: RequestListProps) {
         return true;
       })
       .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
-  }, [activeRequests, selectedGroup, selectedCategory, selectedPriority, selectedSender, searchFilters, filterDate, resolvedIds, getArchivedRequests]);
+  }, [activeRequests, selectedGroup, selectedCategory, selectedPriority, selectedRequestType, selectedSender, searchFilters, filterDate, resolvedIds, getArchivedRequests]);
 
   const totalPages = Math.ceil(filteredRequests.length / ITEMS_PER_PAGE);
   const paginatedRequests = filteredRequests.slice(
@@ -118,6 +120,8 @@ export function RequestList({ filterDate }: RequestListProps) {
       setSelectedGroup(filter.value);
     } else if (filter.type === 'sender') {
       setSelectedSender(filter.value);
+    } else if (filter.type === 'requestType') {
+      setSelectedRequestType(filter.value);
     }
     setCurrentPage(1);
   };
@@ -201,9 +205,11 @@ export function RequestList({ filterDate }: RequestListProps) {
             selectedGroup={selectedGroup}
             selectedCategory={selectedCategory}
             selectedPriority={selectedPriority}
+            selectedRequestType={selectedRequestType}
             onGroupChange={(v) => { setSelectedGroup(v); handleFilterChange(); }}
             onCategoryChange={(v) => { setSelectedCategory(v); handleFilterChange(); }}
             onPriorityChange={(v) => { setSelectedPriority(v); handleFilterChange(); }}
+            onRequestTypeChange={(v) => { setSelectedRequestType(v); handleFilterChange(); }}
           />
           {selectedSender !== 'all' && (
             <Button

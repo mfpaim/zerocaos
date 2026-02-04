@@ -12,6 +12,8 @@ export type Category =
   | 'limpeza' 
   | 'outros';
 
+export type RequestType = 'reclamacao' | 'sugestao' | 'solicitacao';
+
 export interface Request {
   id: string;
   groupId: string;
@@ -24,6 +26,7 @@ export interface Request {
   timestamp: Date;
   messageLink: string;
   isResolved: boolean;
+  requestType: RequestType;
 }
 
 export interface GroupMember {
@@ -58,6 +61,12 @@ export const priorityLabels: Record<Priority, string> = {
   high: 'Alta',
   medium: 'Média',
   low: 'Baixa',
+};
+
+export const requestTypeLabels: Record<RequestType, string> = {
+  reclamacao: 'Reclamação',
+  sugestao: 'Sugestão',
+  solicitacao: 'Solicitação',
 };
 
 export const categoryKeywords: Record<Category, string[]> = {

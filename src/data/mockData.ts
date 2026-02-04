@@ -1,4 +1,4 @@
-import { Request, Group, GroupMember, Category, categoryPriority, priorityScores } from '@/types/requests';
+import { Request, Group, GroupMember, Category, RequestType, categoryPriority, priorityScores } from '@/types/requests';
 
 // Helper to create members
 const createMembers = (groupId: string): GroupMember[] => {
@@ -35,7 +35,8 @@ const createRequest = (
   message: string,
   category: Category,
   daysAgo: number = 0,
-  hoursAgo: number = 0
+  hoursAgo: number = 0,
+  requestType: RequestType = 'solicitacao'
 ): Request => {
   const priority = categoryPriority[category];
   const timestamp = new Date();
@@ -54,33 +55,34 @@ const createRequest = (
     timestamp,
     messageLink: `https://wa.me/group/${groupId}/message/${id}`,
     isResolved: false,
+    requestType,
   };
 };
 
 export const requests: Request[] = [
   // Alta prioridade
-  createRequest('1', '1', 'Condomínio Garbins', 'Dona Gigi', 'Estou presa no elevador, socorro! O elevador parou no 5º andar e não abre a porta!', 'elevador', 0, 1),
-  createRequest('2', '2', 'Condomínio Moreno', 'Sr. Carlos', 'Urgente! Vazamento de água no apartamento 302, está descendo água pelo teto do 202!', 'agua', 0, 2),
-  createRequest('3', '3', 'Residencial Aurora', 'Maria Clara', 'Gente, estou sentindo um cheiro forte de gás no corredor do 3º andar. Alguém mais sentiu?', 'gas', 0, 3),
-  createRequest('4', '4', 'Edifício Central', 'João Pedro', 'O portão da garagem não está fechando! Já são 23h e qualquer pessoa pode entrar.', 'portao', 0, 4),
-  createRequest('5', '1', 'Condomínio Garbins', 'Sra. Helena', 'O elevador de serviço está fazendo um barulho estranho e travando. Melhor verificar antes que pare de vez.', 'elevador', 0, 6),
+  createRequest('1', '1', 'Condomínio Garbins', 'Dona Gigi', 'Estou presa no elevador, socorro! O elevador parou no 5º andar e não abre a porta!', 'elevador', 0, 1, 'reclamacao'),
+  createRequest('2', '2', 'Condomínio Moreno', 'Sr. Carlos', 'Urgente! Vazamento de água no apartamento 302, está descendo água pelo teto do 202!', 'agua', 0, 2, 'reclamacao'),
+  createRequest('3', '3', 'Residencial Aurora', 'Maria Clara', 'Gente, estou sentindo um cheiro forte de gás no corredor do 3º andar. Alguém mais sentiu?', 'gas', 0, 3, 'reclamacao'),
+  createRequest('4', '4', 'Edifício Central', 'João Pedro', 'O portão da garagem não está fechando! Já são 23h e qualquer pessoa pode entrar.', 'portao', 0, 4, 'reclamacao'),
+  createRequest('5', '1', 'Condomínio Garbins', 'Sra. Helena', 'O elevador de serviço está fazendo um barulho estranho e travando. Melhor verificar antes que pare de vez.', 'elevador', 0, 6, 'solicitacao'),
   
   // Média prioridade
-  createRequest('6', '2', 'Condomínio Moreno', 'Fernando', 'Tem duas luzes queimadas no corredor do 4º andar. Está muito escuro à noite.', 'iluminacao', 1, 2),
-  createRequest('7', '3', 'Residencial Aurora', 'Ana Paula', 'O vizinho do 501 está com som alto de novo. Já passa das 22h e não consigo dormir!', 'barulho', 1, 4),
-  createRequest('8', '4', 'Edifício Central', 'Roberto', 'A lâmpada do hall de entrada está piscando faz 3 dias. Pode causar mal-estar.', 'iluminacao', 1, 8),
-  createRequest('9', '1', 'Condomínio Garbins', 'Marta', 'O cachorro do 202 não para de latir durante a madrugada. Já faz uma semana assim.', 'barulho', 2, 3),
+  createRequest('6', '2', 'Condomínio Moreno', 'Fernando', 'Tem duas luzes queimadas no corredor do 4º andar. Está muito escuro à noite.', 'iluminacao', 1, 2, 'solicitacao'),
+  createRequest('7', '3', 'Residencial Aurora', 'Ana Paula', 'O vizinho do 501 está com som alto de novo. Já passa das 22h e não consigo dormir!', 'barulho', 1, 4, 'reclamacao'),
+  createRequest('8', '4', 'Edifício Central', 'Roberto', 'A lâmpada do hall de entrada está piscando faz 3 dias. Pode causar mal-estar.', 'iluminacao', 1, 8, 'solicitacao'),
+  createRequest('9', '1', 'Condomínio Garbins', 'Marta', 'O cachorro do 202 não para de latir durante a madrugada. Já faz uma semana assim.', 'barulho', 2, 3, 'reclamacao'),
   
   // Baixa prioridade
-  createRequest('10', '2', 'Condomínio Moreno', 'Giulia', 'Minha gata fugiu! Ela é cinza com manchas brancas, atende por Mimi. Se alguém ver, me avisa?', 'animais', 2, 5),
-  createRequest('11', '3', 'Residencial Aurora', 'Pedro', 'Alguém sujou minha vaga de garagem com óleo. Gostaria de saber quem foi.', 'limpeza', 2, 12),
-  createRequest('12', '4', 'Edifício Central', 'Carla', 'O boleto do condomínio não chegou esse mês. Como faço para solicitar a 2ª via?', 'boleto', 3, 2),
-  createRequest('13', '1', 'Condomínio Garbins', 'Seu Antônio', 'Meu cachorro Rex escapou do apartamento. Ele é um labrador dourado, muito dócil.', 'animais', 3, 6),
-  createRequest('14', '2', 'Condomínio Moreno', 'Luciana', 'Tem muito lixo acumulado na área de descarte. Está atraindo baratas.', 'limpeza', 3, 10),
-  createRequest('15', '3', 'Residencial Aurora', 'Ricardo', 'Gostaria de saber quando vai ser feita a taxa extra para pintura. Não recebi informação.', 'boleto', 4, 3),
-  createRequest('16', '4', 'Edifício Central', 'Silvia', 'Encontrei um gatinho abandonado na escada. Alguém perdeu ou quer adotar?', 'animais', 4, 7),
-  createRequest('17', '5', 'Vila das Flores', 'Marcos', 'A área de churrasqueira precisa de uma limpeza geral. Está bem suja.', 'limpeza', 5, 2),
-  createRequest('18', '5', 'Vila das Flores', 'Renata', 'Sobre o boleto atrasado, já paguei mas continua constando em aberto no sistema.', 'boleto', 5, 8),
+  createRequest('10', '2', 'Condomínio Moreno', 'Giulia', 'Minha gata fugiu! Ela é cinza com manchas brancas, atende por Mimi. Se alguém ver, me avisa?', 'animais', 2, 5, 'solicitacao'),
+  createRequest('11', '3', 'Residencial Aurora', 'Pedro', 'Alguém sujou minha vaga de garagem com óleo. Gostaria de saber quem foi.', 'limpeza', 2, 12, 'reclamacao'),
+  createRequest('12', '4', 'Edifício Central', 'Carla', 'O boleto do condomínio não chegou esse mês. Como faço para solicitar a 2ª via?', 'boleto', 3, 2, 'solicitacao'),
+  createRequest('13', '1', 'Condomínio Garbins', 'Seu Antônio', 'Meu cachorro Rex escapou do apartamento. Ele é um labrador dourado, muito dócil.', 'animais', 3, 6, 'solicitacao'),
+  createRequest('14', '2', 'Condomínio Moreno', 'Luciana', 'Tem muito lixo acumulado na área de descarte. Está atraindo baratas.', 'limpeza', 3, 10, 'reclamacao'),
+  createRequest('15', '3', 'Residencial Aurora', 'Ricardo', 'Gostaria de saber quando vai ser feita a taxa extra para pintura. Não recebi informação.', 'boleto', 4, 3, 'solicitacao'),
+  createRequest('16', '4', 'Edifício Central', 'Silvia', 'Encontrei um gatinho abandonado na escada. Alguém perdeu ou quer adotar?', 'animais', 4, 7, 'solicitacao'),
+  createRequest('17', '5', 'Vila das Flores', 'Marcos', 'A área de churrasqueira precisa de uma limpeza geral. Está bem suja.', 'limpeza', 5, 2, 'sugestao'),
+  createRequest('18', '5', 'Vila das Flores', 'Renata', 'Sobre o boleto atrasado, já paguei mas continua constando em aberto no sistema.', 'boleto', 5, 8, 'reclamacao'),
 ];
 
 // Dados para gráficos
