@@ -64,11 +64,11 @@ export default {
         },
         priority: {
           high: "hsl(var(--priority-high))",
-          "high-bg": "hsl(var(--priority-high-bg))",
           medium: "hsl(var(--priority-medium))",
-          "medium-bg": "hsl(var(--priority-medium-bg))",
           low: "hsl(var(--priority-low))",
-          "low-bg": "hsl(var(--priority-low-bg))",
+        },
+        "request-card": {
+          bg: "hsl(var(--request-card-bg))",
         },
         category: {
           elevador: "hsl(var(--category-elevador))",

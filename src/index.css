@@ -40,11 +40,11 @@
 
     /* Priority colors */
     --priority-high: 0 84% 60%;
-    --priority-high-bg: 0 84% 97%;
     --priority-medium: 45 93% 47%;
-    --priority-medium-bg: 45 93% 97%;
     --priority-low: 142 71% 45%;
-    --priority-low-bg: 142 71% 97%;
+    
+    /* Card background - light grey */
+    --request-card-bg: 220 14% 96%;
 
     /* Category colors */
     --category-elevador: 0 84% 60%;
@@ -102,11 +102,11 @@
 
     /* Priority colors dark */
     --priority-high: 0 72% 51%;
-    --priority-high-bg: 0 72% 15%;
     --priority-medium: 45 93% 47%;
-    --priority-medium-bg: 45 93% 15%;
     --priority-low: 142 71% 45%;
-    --priority-low-bg: 142 71% 15%;
+    
+    /* Card background dark - subtle grey */
+    --request-card-bg: 222 47% 12%;
 
     /* Sidebar dark - WhatsApp Green to Sky Blue gradient palette */
     --sidebar-background: 200 20% 10%;
