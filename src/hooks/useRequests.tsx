@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
-import { Request, Category, Priority, categoryPriority, priorityScores } from '@/types/requests';
+import { Request, Category, Priority, RequestType, categoryPriority, priorityScores } from '@/types/requests';
 import { requests as initialRequests } from '@/data/mockData';
 
 interface RequestsContextType {
@@ -11,6 +11,7 @@ interface RequestsContextType {
   deleteRequest: (id: string) => void;
   updateCategory: (id: string, category: Category) => void;
   updatePriority: (id: string, priority: Priority) => void;
+  updateRequestType: (id: string, requestType: RequestType) => void;
   getActiveRequests: () => Request[];
   getArchivedRequests: () => Request[];
   resolvedCount: number;
@@ -75,6 +76,18 @@ export function RequestsProvider({ children }: { children: ReactNode }) {
     }));
   }, []);
 
+  const updateRequestType = useCallback((id: string, requestType: RequestType) => {
+    setRequests(prev => prev.map(req => {
+      if (req.id === id) {
+        return {
+          ...req,
+          requestType,
+        };
+      }
+      return req;
+    }));
+  }, []);
+
   const getActiveRequests = useCallback(() => {
     return requests.filter(r => !archivedIds.has(r.id));
   }, [requests, archivedIds]);
@@ -95,6 +108,7 @@ export function RequestsProvider({ children }: { children: ReactNode }) {
       deleteRequest,
       updateCategory,
       updatePriority,
+      updateRequestType,
       getActiveRequests,
       getArchivedRequests,
       resolvedCount,
@@ -113,6 +127,7 @@ const defaultContext: RequestsContextType = {
   deleteRequest: () => {},
   updateCategory: () => {},
   updatePriority: () => {},
+  updateRequestType: () => {},
   getActiveRequests: () => initialRequests,
   getArchivedRequests: () => [],
   resolvedCount: 0,

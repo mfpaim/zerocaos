@@ -1,5 +1,5 @@
 import { ExternalLink, Clock, Check, Archive, ChevronDown } from 'lucide-react';
-import { Request, Category, Priority, categoryLabels, priorityLabels } from '@/types/requests';
+import { Request, Category, Priority, RequestType, categoryLabels, priorityLabels, requestTypeLabels } from '@/types/requests';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
@@ -42,6 +42,12 @@ const categoryColors: Record<string, string> = {
   outros: 'bg-category-outros',
 };
 
+const requestTypeColors: Record<RequestType, string> = {
+  reclamacao: 'bg-red-500/20 text-red-700 border-red-300',
+  sugestao: 'bg-blue-500/20 text-blue-700 border-blue-300',
+  solicitacao: 'bg-purple-500/20 text-purple-700 border-purple-300',
+};
+
 const allCategories: Category[] = [
   'elevador', 'agua', 'gas', 'portao', 'iluminacao', 
   'barulho', 'boleto', 'animais', 'limpeza', 'outros'
@@ -49,9 +55,11 @@ const allCategories: Category[] = [
 
 const allPriorities: Priority[] = ['high', 'medium', 'low'];
 
+const allRequestTypes: RequestType[] = ['reclamacao', 'sugestao', 'solicitacao'];
+
 export function RequestCard({ request, onFilterChange }: RequestCardProps) {
   const timeAgo = getTimeAgo(request.timestamp);
-  const { markAsResolved, archiveRequest, resolvedIds, updateCategory, updatePriority } = useRequests();
+  const { markAsResolved, archiveRequest, resolvedIds, updateCategory, updatePriority, updateRequestType } = useRequests();
   const isResolved = resolvedIds.has(request.id);
 
   const handleFilterClick = (type: string, value: string) => {
@@ -66,6 +74,10 @@ export function RequestCard({ request, onFilterChange }: RequestCardProps) {
 
   const handlePriorityChange = (priority: Priority) => {
     updatePriority(request.id, priority);
+  };
+
+  const handleRequestTypeChange = (requestType: RequestType) => {
+    updateRequestType(request.id, requestType);
   };
 
   return (
@@ -146,6 +158,38 @@ export function RequestCard({ request, onFilterChange }: RequestCardProps) {
                       prio === 'low' && "bg-priority-low"
                     )} />
                     {priorityLabels[prio]}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Editable Request Type Badge */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded-full">
+                  <Badge 
+                    variant="outline" 
+                    className={cn(
+                      "cursor-pointer hover:opacity-80 flex items-center gap-1",
+                      requestTypeColors[request.requestType]
+                    )}
+                  >
+                    {requestTypeLabels[request.requestType]}
+                    <ChevronDown className="h-3 w-3" />
+                  </Badge>
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start">
+                {allRequestTypes.map((type) => (
+                  <DropdownMenuItem
+                    key={type}
+                    onClick={() => handleRequestTypeChange(type)}
+                    className={cn(
+                      "cursor-pointer",
+                      request.requestType === type && "bg-accent"
+                    )}
+                  >
+                    {requestTypeLabels[type]}
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>
