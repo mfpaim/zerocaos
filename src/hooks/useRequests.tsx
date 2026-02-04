@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
-import { Request } from '@/types/requests';
+import { Request, Category, Priority, categoryPriority, priorityScores } from '@/types/requests';
 import { requests as initialRequests } from '@/data/mockData';
 
 interface RequestsContextType {
@@ -9,6 +9,8 @@ interface RequestsContextType {
   markAsResolved: (id: string) => void;
   archiveRequest: (id: string) => void;
   deleteRequest: (id: string) => void;
+  updateCategory: (id: string, category: Category) => void;
+  updatePriority: (id: string, priority: Priority) => void;
   getActiveRequests: () => Request[];
   getArchivedRequests: () => Request[];
   resolvedCount: number;
@@ -17,7 +19,7 @@ interface RequestsContextType {
 const RequestsContext = createContext<RequestsContextType | null>(null);
 
 export function RequestsProvider({ children }: { children: ReactNode }) {
-  const [requests] = useState<Request[]>(initialRequests);
+  const [requests, setRequests] = useState<Request[]>(initialRequests);
   const [resolvedIds, setResolvedIds] = useState<Set<string>>(new Set());
   const [archivedIds, setArchivedIds] = useState<Set<string>>(new Set());
 
@@ -45,6 +47,34 @@ export function RequestsProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  const updateCategory = useCallback((id: string, category: Category) => {
+    setRequests(prev => prev.map(req => {
+      if (req.id === id) {
+        const newPriority = categoryPriority[category];
+        return {
+          ...req,
+          category,
+          priority: newPriority,
+          priorityScore: priorityScores[newPriority],
+        };
+      }
+      return req;
+    }));
+  }, []);
+
+  const updatePriority = useCallback((id: string, priority: Priority) => {
+    setRequests(prev => prev.map(req => {
+      if (req.id === id) {
+        return {
+          ...req,
+          priority,
+          priorityScore: priorityScores[priority],
+        };
+      }
+      return req;
+    }));
+  }, []);
+
   const getActiveRequests = useCallback(() => {
     return requests.filter(r => !archivedIds.has(r.id));
   }, [requests, archivedIds]);
@@ -63,6 +93,8 @@ export function RequestsProvider({ children }: { children: ReactNode }) {
       markAsResolved,
       archiveRequest,
       deleteRequest,
+      updateCategory,
+      updatePriority,
       getActiveRequests,
       getArchivedRequests,
       resolvedCount,
@@ -79,6 +111,8 @@ const defaultContext: RequestsContextType = {
   markAsResolved: () => {},
   archiveRequest: () => {},
   deleteRequest: () => {},
+  updateCategory: () => {},
+  updatePriority: () => {},
   getActiveRequests: () => initialRequests,
   getArchivedRequests: () => [],
   resolvedCount: 0,
