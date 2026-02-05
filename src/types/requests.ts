@@ -14,6 +14,8 @@ export type Category =
 
 export type RequestType = 'reclamacao' | 'sugestao' | 'solicitacao';
 
+export type Status = 'pendente' | 'em_andamento' | 'respondido' | 'resolvido';
+
 export interface Request {
   id: string;
   groupId: string;
@@ -27,6 +29,7 @@ export interface Request {
   messageLink: string;
   isResolved: boolean;
   requestType: RequestType;
+  status: Status;
 }
 
 export interface GroupMember {
@@ -67,6 +70,13 @@ export const requestTypeLabels: Record<RequestType, string> = {
   reclamacao: 'Reclamação',
   sugestao: 'Sugestão',
   solicitacao: 'Solicitação',
+};
+
+export const statusLabels: Record<Status, string> = {
+  pendente: 'Pendente',
+  em_andamento: 'Em Andamento',
+  respondido: 'Respondido',
+  resolvido: 'Resolvido',
 };
 
 export const categoryKeywords: Record<Category, string[]> = {

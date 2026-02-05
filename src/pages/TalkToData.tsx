@@ -27,7 +27,8 @@ export default function TalkToData() {
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const { requests, resolvedIds, archivedIds } = useRequests();
+  const { requests, archivedIds, getStatusCounts } = useRequests();
+  const statusCounts = getStatusCounts();
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -36,14 +37,14 @@ export default function TalkToData() {
   }, [messages]);
 
   const activeRequests = requests.filter(r => !archivedIds.has(r.id));
-  const resolvedRequests = requests.filter(r => resolvedIds.has(r.id));
+  const resolvedRequests = requests.filter(r => r.status === 'resolvido');
 
   const generateResponse = (question: string): string => {
     const q = question.toLowerCase();
 
     // Total requests
     if (q.includes('quantas solicitações') || q.includes('total de solicitações') || q.includes('número de solicitações')) {
-      return `Temos **${requests.length} solicitações** no total:\n• ${activeRequests.length} ativas\n• ${archivedIds.size} arquivadas\n• ${resolvedIds.size} resolvidas`;
+      return `Temos **${requests.length} solicitações** no total:\n• ${activeRequests.length} ativas\n• ${archivedIds.size} arquivadas\n• ${statusCounts.resolvido} resolvidas`;
     }
 
     // Groups
@@ -83,7 +84,7 @@ export default function TalkToData() {
 
     // Resolved
     if (q.includes('resolvidas') || q.includes('resolvidos') || q.includes('concluídas')) {
-      return `Temos **${resolvedIds.size} solicitações marcadas como resolvidas** de um total de ${requests.length}.`;
+      return `Temos **${statusCounts.resolvido} solicitações marcadas como resolvidas** de um total de ${requests.length}.`;
     }
 
     // Archived

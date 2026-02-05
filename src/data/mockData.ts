@@ -1,4 +1,4 @@
-import { Request, Group, GroupMember, Category, RequestType, categoryPriority, priorityScores } from '@/types/requests';
+import { Request, Group, GroupMember, Category, RequestType, Status, categoryPriority, priorityScores } from '@/types/requests';
 
 // Helper to create members
 const createMembers = (groupId: string): GroupMember[] => {
@@ -36,7 +36,8 @@ const createRequest = (
   category: Category,
   daysAgo: number = 0,
   hoursAgo: number = 0,
-  requestType: RequestType = 'solicitacao'
+  requestType: RequestType = 'solicitacao',
+  status: Status = 'pendente'
 ): Request => {
   const priority = categoryPriority[category];
   const timestamp = new Date();
@@ -56,6 +57,7 @@ const createRequest = (
     messageLink: `https://wa.me/group/${groupId}/message/${id}`,
     isResolved: false,
     requestType,
+    status,
   };
 };
 

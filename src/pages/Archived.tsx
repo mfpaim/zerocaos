@@ -1,4 +1,4 @@
-import { Archive, Trash2 } from 'lucide-react';
+import { Archive, Trash2, RotateCcw } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -26,7 +26,7 @@ const categoryColors: Record<string, string> = {
 };
 
 export default function Archived() {
-  const { getArchivedRequests, deleteRequest } = useRequests();
+  const { getArchivedRequests, deleteRequest, restoreRequest } = useRequests();
   const archivedRequests = getArchivedRequests();
 
   return (
@@ -65,14 +65,24 @@ export default function Archived() {
                   </div>
                   <p className="text-foreground line-clamp-2">{request.message}</p>
                 </div>
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => deleteRequest(request.id)}
-                >
-                  <Trash2 className="h-4 w-4 mr-1" />
-                  Apagar
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => restoreRequest(request.id)}
+                  >
+                    <RotateCcw className="h-4 w-4 mr-1" />
+                    Restaurar
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => deleteRequest(request.id)}
+                  >
+                    <Trash2 className="h-4 w-4 mr-1" />
+                    Apagar
+                  </Button>
+                </div>
               </div>
             </Card>
           ))}

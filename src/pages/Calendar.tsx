@@ -13,7 +13,7 @@ import { ptBR } from 'date-fns/locale';
 const Calendar = () => {
   const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const { getActiveRequests, resolvedIds } = useRequests();
+  const { getActiveRequests } = useRequests();
   const activeRequests = getActiveRequests();
 
   // Filter requests by selected date
@@ -23,8 +23,8 @@ const Calendar = () => {
       .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
   }, [activeRequests, selectedDate]);
 
-  const pendingRequests = filteredRequests.filter(req => !resolvedIds.has(req.id));
-  const resolvedRequests = filteredRequests.filter(req => resolvedIds.has(req.id));
+  const pendingRequests = filteredRequests.filter(req => req.status !== 'resolvido');
+  const resolvedRequests = filteredRequests.filter(req => req.status === 'resolvido');
 
   const handleDateSelect = (date: Date) => {
     setSelectedDate(date);

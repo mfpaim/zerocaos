@@ -13,7 +13,7 @@ interface RequestCalendarProps {
 
 export function RequestCalendar({ onDateSelect, className }: RequestCalendarProps) {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
-  const { requests, resolvedIds } = useRequests();
+  const { requests } = useRequests();
 
   // Calculate stats per day
   const dayStats = useMemo(() => {
@@ -23,7 +23,7 @@ export function RequestCalendar({ onDateSelect, className }: RequestCalendarProp
       const dateKey = format(req.timestamp, 'yyyy-MM-dd');
       const existing = stats.get(dateKey) || { total: 0, resolved: 0, pending: 0 };
       existing.total++;
-      if (resolvedIds.has(req.id)) {
+      if (req.status === 'resolvido') {
         existing.resolved++;
       } else {
         existing.pending++;
@@ -32,7 +32,7 @@ export function RequestCalendar({ onDateSelect, className }: RequestCalendarProp
     });
     
     return stats;
-  }, [requests, resolvedIds]);
+  }, [requests]);
 
   const selectedDateStats = selectedDate 
     ? dayStats.get(format(selectedDate, 'yyyy-MM-dd')) 

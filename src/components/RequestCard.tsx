@@ -1,5 +1,5 @@
-import { ExternalLink, Clock, Check, Archive, ChevronDown } from 'lucide-react';
-import { Request, Category, Priority, RequestType, categoryLabels, priorityLabels, requestTypeLabels } from '@/types/requests';
+import { ExternalLink, Clock, Trash2, ChevronDown } from 'lucide-react';
+import { Request, Category, Priority, RequestType, Status, categoryLabels, priorityLabels, requestTypeLabels, statusLabels } from '@/types/requests';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
@@ -48,6 +48,13 @@ const requestTypeColors: Record<RequestType, string> = {
   solicitacao: 'bg-purple-500/20 text-purple-700 border-purple-300',
 };
 
+const statusColors: Record<Status, string> = {
+  pendente: 'bg-gray-500/20 text-gray-700 border-gray-300',
+  em_andamento: 'bg-yellow-500/20 text-yellow-700 border-yellow-300',
+  respondido: 'bg-blue-500/20 text-blue-700 border-blue-300',
+  resolvido: 'bg-green-500/20 text-green-700 border-green-300',
+};
+
 const allCategories: Category[] = [
   'elevador', 'agua', 'gas', 'portao', 'iluminacao', 
   'barulho', 'boleto', 'animais', 'limpeza', 'outros'
@@ -57,10 +64,11 @@ const allPriorities: Priority[] = ['high', 'medium', 'low'];
 
 const allRequestTypes: RequestType[] = ['reclamacao', 'sugestao', 'solicitacao'];
 
+const allStatuses: Status[] = ['pendente', 'em_andamento', 'respondido', 'resolvido'];
+
 export function RequestCard({ request, onFilterChange }: RequestCardProps) {
   const timeAgo = getTimeAgo(request.timestamp);
-  const { markAsResolved, archiveRequest, resolvedIds, updateCategory, updatePriority, updateRequestType } = useRequests();
-  const isResolved = resolvedIds.has(request.id);
+  const { archiveRequest, updateCategory, updatePriority, updateRequestType, updateStatus } = useRequests();
 
   const handleFilterClick = (type: string, value: string) => {
     if (onFilterChange) {
@@ -80,11 +88,15 @@ export function RequestCard({ request, onFilterChange }: RequestCardProps) {
     updateRequestType(request.id, requestType);
   };
 
+  const handleStatusChange = (status: Status) => {
+    updateStatus(request.id, status);
+  };
+
   return (
     <Card className={cn(
       "border-l-4 p-4 transition-all hover:shadow-md bg-request-card-bg",
       priorityBorderStyles[request.priority],
-      isResolved && "opacity-60"
+      request.status === 'resolvido' && "opacity-60"
     )}>
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
@@ -195,11 +207,37 @@ export function RequestCard({ request, onFilterChange }: RequestCardProps) {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            {isResolved && (
-              <Badge variant="outline" className="bg-priority-low/20 text-priority-low border-priority-low">
-                Resolvido
-              </Badge>
-            )}
+            {/* Editable Status Badge */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded-full">
+                  <Badge 
+                    variant="outline" 
+                    className={cn(
+                      "cursor-pointer hover:opacity-80 flex items-center gap-1",
+                      statusColors[request.status]
+                    )}
+                  >
+                    {statusLabels[request.status]}
+                    <ChevronDown className="h-3 w-3" />
+                  </Badge>
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start">
+                {allStatuses.map((status) => (
+                  <DropdownMenuItem
+                    key={status}
+                    onClick={() => handleStatusChange(status)}
+                    className={cn(
+                      "cursor-pointer",
+                      request.status === status && "bg-accent"
+                    )}
+                  >
+                    {statusLabels[status]}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           {/* Group & Sender */}
@@ -242,22 +280,13 @@ export function RequestCard({ request, onFilterChange }: RequestCardProps) {
             </a>
           </Button>
           <Button
-            variant={isResolved ? "default" : "outline"}
-            size="sm"
-            onClick={() => markAsResolved(request.id)}
-            className={cn(isResolved && "bg-priority-low hover:bg-priority-low/90")}
-          >
-            <Check className="h-4 w-4 mr-1" />
-            {isResolved ? 'Resolvido' : 'Respondido'}
-          </Button>
-          <Button
             variant="ghost"
-            size="sm"
+            size="icon"
             onClick={() => archiveRequest(request.id)}
-            className="text-muted-foreground hover:text-destructive"
+            className="text-muted-foreground hover:text-destructive h-8 w-8"
+            title="Arquivar (mensagem irrelevante)"
           >
-            <Archive className="h-4 w-4 mr-1" />
-            Arquivar
+            <Trash2 className="h-4 w-4" />
           </Button>
         </div>
       </div>
