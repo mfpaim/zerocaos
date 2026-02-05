@@ -1,5 +1,5 @@
 import { ExternalLink, Clock, Trash2, ChevronDown } from 'lucide-react';
-import { Request, Category, Priority, RequestType, Status, categoryLabels, priorityLabels, requestTypeLabels, statusLabels } from '@/types/requests';
+import { Request, Category, Priority, RequestType, Status, categoryLabels, priorityLabels, requestTypeLabels } from '@/types/requests';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
@@ -48,13 +48,6 @@ const requestTypeColors: Record<RequestType, string> = {
   solicitacao: 'bg-purple-500/20 text-purple-700 border-purple-300',
 };
 
-const statusColors: Record<Status, string> = {
-  pendente: 'bg-gray-500/20 text-gray-700 border-gray-300',
-  em_andamento: 'bg-yellow-500/20 text-yellow-700 border-yellow-300',
-  respondido: 'bg-blue-500/20 text-blue-700 border-blue-300',
-  resolvido: 'bg-green-500/20 text-green-700 border-green-300',
-};
-
 const allCategories: Category[] = [
   'elevador', 'agua', 'gas', 'portao', 'iluminacao', 
   'barulho', 'boleto', 'animais', 'limpeza', 'outros'
@@ -64,7 +57,12 @@ const allPriorities: Priority[] = ['high', 'medium', 'low'];
 
 const allRequestTypes: RequestType[] = ['reclamacao', 'sugestao', 'solicitacao'];
 
-const allStatuses: Status[] = ['pendente', 'em_andamento', 'respondido', 'resolvido'];
+const statusFlow: { status: Status; label: string; shortLabel: string }[] = [
+  { status: 'pendente', label: 'Pendente', shortLabel: 'P' },
+  { status: 'em_andamento', label: 'Em Andamento', shortLabel: 'A' },
+  { status: 'respondido', label: 'Respondido', shortLabel: 'R' },
+  { status: 'resolvido', label: 'Resolvido', shortLabel: '✓' },
+];
 
 export function RequestCard({ request, onFilterChange }: RequestCardProps) {
   const timeAgo = getTimeAgo(request.timestamp);
@@ -92,6 +90,8 @@ export function RequestCard({ request, onFilterChange }: RequestCardProps) {
     updateStatus(request.id, status);
   };
 
+  const currentStatusIndex = statusFlow.findIndex(s => s.status === request.status);
+
   return (
     <Card className={cn(
       "border-l-4 p-4 transition-all hover:shadow-md bg-request-card-bg",
@@ -100,7 +100,7 @@ export function RequestCard({ request, onFilterChange }: RequestCardProps) {
     )}>
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
-          {/* Header */}
+          {/* Header with Tags */}
           <div className="flex flex-wrap items-center gap-2 mb-2">
             {/* Editable Category Badge */}
             <DropdownMenu>
@@ -206,38 +206,6 @@ export function RequestCard({ request, onFilterChange }: RequestCardProps) {
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
-
-            {/* Editable Status Badge */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded-full">
-                  <Badge 
-                    variant="outline" 
-                    className={cn(
-                      "cursor-pointer hover:opacity-80 flex items-center gap-1",
-                      statusColors[request.status]
-                    )}
-                  >
-                    {statusLabels[request.status]}
-                    <ChevronDown className="h-3 w-3" />
-                  </Badge>
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start">
-                {allStatuses.map((status) => (
-                  <DropdownMenuItem
-                    key={status}
-                    onClick={() => handleStatusChange(status)}
-                    className={cn(
-                      "cursor-pointer",
-                      request.status === status && "bg-accent"
-                    )}
-                  >
-                    {statusLabels[status]}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
           </div>
 
           {/* Group & Sender */}
@@ -260,10 +228,41 @@ export function RequestCard({ request, onFilterChange }: RequestCardProps) {
           {/* Message */}
           <p className="text-foreground line-clamp-2">{request.message}</p>
 
-          {/* Time */}
-          <div className="flex items-center gap-1 mt-2 text-xs text-muted-foreground">
-            <Clock className="h-3 w-3" />
-            <span>{timeAgo}</span>
+          {/* Time and Status Flow */}
+          <div className="flex items-center justify-between mt-3 gap-4">
+            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+              <Clock className="h-3 w-3" />
+              <span>{timeAgo}</span>
+            </div>
+
+            {/* Status Flow Buttons */}
+            <div className="flex items-center gap-0.5 bg-muted/50 rounded-full p-0.5">
+              {statusFlow.map((item, index) => {
+                const isActive = request.status === item.status;
+                const isPassed = index < currentStatusIndex;
+                
+                return (
+                  <button
+                    key={item.status}
+                    onClick={() => handleStatusChange(item.status)}
+                    title={item.label}
+                    className={cn(
+                      "px-2.5 py-1 text-xs font-medium rounded-full transition-all",
+                      "hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1",
+                      isActive && index === 0 && "bg-gray-400 text-white",
+                      isActive && index === 1 && "bg-yellow-500 text-white",
+                      isActive && index === 2 && "bg-blue-500 text-white",
+                      isActive && index === 3 && "bg-green-500 text-white",
+                      !isActive && isPassed && "bg-muted text-muted-foreground/70",
+                      !isActive && !isPassed && "bg-transparent text-muted-foreground hover:bg-muted"
+                    )}
+                  >
+                    <span className="hidden sm:inline">{item.label}</span>
+                    <span className="sm:hidden">{item.shortLabel}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
 
