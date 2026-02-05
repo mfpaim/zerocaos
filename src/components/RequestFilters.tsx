@@ -1,5 +1,5 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Category, Priority, RequestType, categoryLabels, priorityLabels, requestTypeLabels } from '@/types/requests';
+import { Category, Priority, RequestType, Status, categoryLabels, priorityLabels, requestTypeLabels, statusLabels } from '@/types/requests';
 import { groups } from '@/data/mockData';
 
 interface RequestFiltersProps {
@@ -7,10 +7,12 @@ interface RequestFiltersProps {
   selectedCategory: string;
   selectedPriority: string;
   selectedRequestType: string;
+  selectedStatus: string;
   onGroupChange: (value: string) => void;
   onCategoryChange: (value: string) => void;
   onPriorityChange: (value: string) => void;
   onRequestTypeChange: (value: string) => void;
+  onStatusChange: (value: string) => void;
 }
 
 export function RequestFilters({
@@ -18,10 +20,12 @@ export function RequestFilters({
   selectedCategory,
   selectedPriority,
   selectedRequestType,
+  selectedStatus,
   onGroupChange,
   onCategoryChange,
   onPriorityChange,
   onRequestTypeChange,
+  onStatusChange,
 }: RequestFiltersProps) {
   return (
     <div className="flex flex-wrap gap-3">
@@ -74,6 +78,19 @@ export function RequestFilters({
           <SelectItem value="reclamacao">{requestTypeLabels.reclamacao}</SelectItem>
           <SelectItem value="sugestao">{requestTypeLabels.sugestao}</SelectItem>
           <SelectItem value="solicitacao">{requestTypeLabels.solicitacao}</SelectItem>
+        </SelectContent>
+      </Select>
+
+      <Select value={selectedStatus} onValueChange={onStatusChange}>
+        <SelectTrigger className="w-[150px] bg-card">
+          <SelectValue placeholder="Status" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">Todos status</SelectItem>
+          <SelectItem value="pendente">{statusLabels.pendente}</SelectItem>
+          <SelectItem value="em_andamento">{statusLabels.em_andamento}</SelectItem>
+          <SelectItem value="respondido">{statusLabels.respondido}</SelectItem>
+          <SelectItem value="resolvido">{statusLabels.resolvido}</SelectItem>
         </SelectContent>
       </Select>
     </div>

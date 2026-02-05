@@ -16,14 +16,16 @@ interface RequestListProps {
 }
 
 export function RequestList({ filterDate }: RequestListProps) {
-  const { requests, getActiveRequests, getArchivedRequests, resolvedIds, archivedIds, resolvedCount } = useRequests();
+  const { getActiveRequests, getArchivedRequests, getStatusCounts } = useRequests();
   const activeRequests = getActiveRequests();
+  const statusCounts = getStatusCounts();
 
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedGroup, setSelectedGroup] = useState('all');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedPriority, setSelectedPriority] = useState('all');
   const [selectedRequestType, setSelectedRequestType] = useState('all');
+  const [selectedStatus, setSelectedStatus] = useState('all');
   const [selectedSender, setSelectedSender] = useState('all');
   const [searchFilters, setSearchFilters] = useState<SearchFilters>({
     text: '',
@@ -36,7 +38,7 @@ export function RequestList({ filterDate }: RequestListProps) {
   const filteredRequests = useMemo(() => {
     let baseRequests = [...activeRequests];
 
-    // Include resolved and archived based on search filters
+    // Include archived based on search filters
     if (searchFilters.includeArchived) {
       const archivedReqs = getArchivedRequests();
       baseRequests = [...baseRequests, ...archivedReqs];
@@ -66,17 +68,13 @@ export function RequestList({ filterDate }: RequestListProps) {
         if (selectedCategory !== 'all' && req.category !== selectedCategory) return false;
         if (selectedPriority !== 'all' && req.priority !== selectedPriority) return false;
         if (selectedRequestType !== 'all' && req.requestType !== selectedRequestType) return false;
+        if (selectedStatus !== 'all' && req.status !== selectedStatus) return false;
         if (selectedSender !== 'all' && searchFilters.sender === 'all' && req.senderName !== selectedSender) return false;
-
-        // Only hide resolved if not including them
-        if (!searchFilters.includeResolved && resolvedIds.has(req.id) && !filterDate) {
-          // Show resolved in date view but can hide in normal view
-        }
 
         return true;
       })
       .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
-  }, [activeRequests, selectedGroup, selectedCategory, selectedPriority, selectedRequestType, selectedSender, searchFilters, filterDate, resolvedIds, getArchivedRequests]);
+  }, [activeRequests, selectedGroup, selectedCategory, selectedPriority, selectedRequestType, selectedStatus, selectedSender, searchFilters, filterDate, getArchivedRequests]);
 
   const totalPages = Math.ceil(filteredRequests.length / ITEMS_PER_PAGE);
   const paginatedRequests = filteredRequests.slice(
@@ -122,6 +120,8 @@ export function RequestList({ filterDate }: RequestListProps) {
       setSelectedSender(filter.value);
     } else if (filter.type === 'requestType') {
       setSelectedRequestType(filter.value);
+    } else if (filter.type === 'status') {
+      setSelectedStatus(filter.value);
     }
     setCurrentPage(1);
   };
@@ -191,7 +191,7 @@ export function RequestList({ filterDate }: RequestListProps) {
               <CheckCheck className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-foreground">{resolvedCount}</p>
+              <p className="text-2xl font-bold text-foreground">{statusCounts.resolvido}</p>
               <p className="text-sm text-muted-foreground">Resolvidos</p>
             </div>
           </div>
@@ -206,10 +206,12 @@ export function RequestList({ filterDate }: RequestListProps) {
             selectedCategory={selectedCategory}
             selectedPriority={selectedPriority}
             selectedRequestType={selectedRequestType}
+            selectedStatus={selectedStatus}
             onGroupChange={(v) => { setSelectedGroup(v); handleFilterChange(); }}
             onCategoryChange={(v) => { setSelectedCategory(v); handleFilterChange(); }}
             onPriorityChange={(v) => { setSelectedPriority(v); handleFilterChange(); }}
             onRequestTypeChange={(v) => { setSelectedRequestType(v); handleFilterChange(); }}
+            onStatusChange={(v) => { setSelectedStatus(v); handleFilterChange(); }}
           />
           {selectedSender !== 'all' && (
             <Button
