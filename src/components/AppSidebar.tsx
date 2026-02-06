@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, BarChart3, Menu, X, Archive, CalendarDays, MessageCircle, Columns3 } from 'lucide-react';
+import { LayoutDashboard, Users, BarChart3, Menu, X, Archive, CalendarDays, MessageCircle, Columns3, CheckCheck } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { groups } from '@/data/mockData';
@@ -14,6 +14,7 @@ const navigation = [
   { name: 'Grupos', href: '/grupos', icon: Users },
   { name: 'Estatísticas', href: '/estatisticas', icon: BarChart3 },
   { name: 'Kanban', href: '/kanban', icon: Columns3 },
+  { name: 'Resolvidos', href: '/resolvidos', icon: CheckCheck },
   { name: 'Fale com seus Dados', href: '/chat', icon: MessageCircle },
   { name: 'Arquivados', href: '/arquivados', icon: Archive },
 ];

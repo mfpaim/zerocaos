@@ -30,6 +30,8 @@ export interface Request {
   isResolved: boolean;
   requestType: RequestType;
   status: Status;
+  resolvedBy?: string;
+  resolvedAt?: Date;
 }
 
 export interface GroupMember {
