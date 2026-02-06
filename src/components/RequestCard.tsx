@@ -1,5 +1,6 @@
 import { ExternalLink, Clock, Trash2, ChevronDown } from 'lucide-react';
 import { Request, Category, Priority, RequestType, Status, categoryLabels, priorityLabels, requestTypeLabels } from '@/types/requests';
+import { useUser } from '@/hooks/useUser';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
@@ -67,6 +68,7 @@ const statusFlow: { status: Status; label: string; shortLabel: string }[] = [
 export function RequestCard({ request, onFilterChange, compact }: RequestCardProps) {
   const timeAgo = getTimeAgo(request.timestamp);
   const { archiveRequest, updateCategory, updatePriority, updateRequestType, updateStatus } = useRequests();
+  const { user } = useUser();
 
   const handleFilterClick = (type: string, value: string) => {
     onFilterChange?.({ type, value });
@@ -152,7 +154,7 @@ export function RequestCard({ request, onFilterChange, compact }: RequestCardPro
             return (
               <button
                 key={item.status}
-                onClick={() => updateStatus(request.id, item.status)}
+                onClick={() => updateStatus(request.id, item.status, user.name)}
                 title={item.label}
                 className={cn(
                   "px-2.5 py-1 text-xs font-medium rounded-full transition-all",

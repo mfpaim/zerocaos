@@ -46,6 +46,9 @@ export function RequestList({ filterDate }: RequestListProps) {
 
     return baseRequests
       .filter((req) => {
+        // Hide resolved from dashboard
+        if (req.status === 'resolvido') return false;
+
         // Date filter
         if (filterDate && !isSameDay(req.timestamp, filterDate)) return false;
         
@@ -73,7 +76,20 @@ export function RequestList({ filterDate }: RequestListProps) {
 
         return true;
       })
-      .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+      .sort((a, b) => {
+        // 1. Status order: pendente first, then em_andamento, then respondido
+        const statusOrder: Record<string, number> = { pendente: 0, em_andamento: 1, respondido: 2, resolvido: 3 };
+        const statusDiff = statusOrder[a.status] - statusOrder[b.status];
+        if (statusDiff !== 0) return statusDiff;
+
+        // 2. Within same status: priority high → medium → low
+        const priorityOrder: Record<string, number> = { high: 0, medium: 1, low: 2 };
+        const priorityDiff = priorityOrder[a.priority] - priorityOrder[b.priority];
+        if (priorityDiff !== 0) return priorityDiff;
+
+        // 3. Within same priority: oldest first
+        return a.timestamp.getTime() - b.timestamp.getTime();
+      });
   }, [activeRequests, selectedGroup, selectedCategory, selectedPriority, selectedRequestType, selectedStatus, selectedSender, searchFilters, filterDate, getArchivedRequests]);
 
   const totalPages = Math.ceil(filteredRequests.length / ITEMS_PER_PAGE);
