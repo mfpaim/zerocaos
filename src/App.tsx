@@ -12,6 +12,7 @@ import Groups from "./pages/Groups";
 import Statistics from "./pages/Statistics";
 import Archived from "./pages/Archived";
 import TalkToData from "./pages/TalkToData";
+import Kanban from "./pages/Kanban";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -33,6 +34,7 @@ const App = () => (
                   <Route path="/grupos" element={<Groups />} />
                   <Route path="/estatisticas" element={<Statistics />} />
                   <Route path="/chat" element={<TalkToData />} />
+                  <Route path="/kanban" element={<Kanban />} />
                   <Route path="/arquivados" element={<Archived />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
