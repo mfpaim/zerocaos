@@ -1,7 +1,8 @@
-import { useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { useRequests } from '@/hooks/useRequests';
-import { RequestCard } from '@/components/RequestCard';
 import { DateIndicator } from '@/components/DateIndicator';
+import { RequestFilters } from '@/components/RequestFilters';
+import { KanbanCard } from '@/components/KanbanCard';
 import { Request, Status } from '@/types/requests';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
@@ -17,6 +18,23 @@ export default function Kanban() {
   const { getActiveRequests } = useRequests();
   const activeRequests = getActiveRequests();
 
+  const [selectedGroup, setSelectedGroup] = useState('all');
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedPriority, setSelectedPriority] = useState('all');
+  const [selectedRequestType, setSelectedRequestType] = useState('all');
+  const [selectedStatus, setSelectedStatus] = useState('all');
+
+  const filteredRequests = useMemo(() => {
+    return activeRequests.filter((req) => {
+      if (selectedGroup !== 'all' && req.groupId !== selectedGroup) return false;
+      if (selectedCategory !== 'all' && req.category !== selectedCategory) return false;
+      if (selectedPriority !== 'all' && req.priority !== selectedPriority) return false;
+      if (selectedRequestType !== 'all' && req.requestType !== selectedRequestType) return false;
+      if (selectedStatus !== 'all' && req.status !== selectedStatus) return false;
+      return true;
+    });
+  }, [activeRequests, selectedGroup, selectedCategory, selectedPriority, selectedRequestType, selectedStatus]);
+
   const grouped = useMemo(() => {
     const map: Record<Status, Request[]> = {
       pendente: [],
@@ -24,15 +42,14 @@ export default function Kanban() {
       respondido: [],
       resolvido: [],
     };
-    activeRequests.forEach(req => {
+    filteredRequests.forEach(req => {
       map[req.status].push(req);
     });
-    // Sort each column by priority score desc, then timestamp desc
     Object.values(map).forEach(arr =>
       arr.sort((a, b) => b.priorityScore - a.priorityScore || b.timestamp.getTime() - a.timestamp.getTime())
     );
     return map;
-  }, [activeRequests]);
+  }, [filteredRequests]);
 
   return (
     <div className="p-4 lg:p-6 min-h-screen">
@@ -44,11 +61,26 @@ export default function Kanban() {
         <DateIndicator />
       </div>
 
+      {/* Filters */}
+      <div className="mb-6">
+        <RequestFilters
+          selectedGroup={selectedGroup}
+          selectedCategory={selectedCategory}
+          selectedPriority={selectedPriority}
+          selectedRequestType={selectedRequestType}
+          selectedStatus={selectedStatus}
+          onGroupChange={setSelectedGroup}
+          onCategoryChange={setSelectedCategory}
+          onPriorityChange={setSelectedPriority}
+          onRequestTypeChange={setSelectedRequestType}
+          onStatusChange={setSelectedStatus}
+        />
+      </div>
+
       {/* Kanban Board */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
         {columns.map(col => (
           <div key={col.status} className={cn("rounded-lg border border-border p-3", col.bgColor)}>
-            {/* Column header */}
             <div className="flex items-center gap-2 mb-4">
               <span className={cn("w-3 h-3 rounded-full", col.color)} />
               <h2 className="font-semibold text-foreground text-sm">{col.label}</h2>
@@ -57,14 +89,13 @@ export default function Kanban() {
               </span>
             </div>
 
-            {/* Column cards */}
-            <ScrollArea className="h-[calc(100vh-200px)]">
-              <div className="space-y-3 pr-2">
+            <ScrollArea className="h-[calc(100vh-260px)]">
+              <div className="space-y-2 pr-2">
                 {grouped[col.status].length === 0 ? (
                   <p className="text-xs text-muted-foreground text-center py-8">Nenhuma solicitação</p>
                 ) : (
                   grouped[col.status].map(req => (
-                    <RequestCard key={req.id} request={req} compact />
+                    <KanbanCard key={req.id} request={req} />
                   ))
                 )}
               </div>

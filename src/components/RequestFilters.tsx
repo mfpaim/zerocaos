@@ -62,7 +62,7 @@ export function RequestFilters({
           <SelectValue placeholder="Prioridade" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">Todas</SelectItem>
+          <SelectItem value="all">Todas prioridades</SelectItem>
           <SelectItem value="high">{priorityLabels.high}</SelectItem>
           <SelectItem value="medium">{priorityLabels.medium}</SelectItem>
           <SelectItem value="low">{priorityLabels.low}</SelectItem>
