@@ -69,28 +69,50 @@ const statusFlow: { status: Status; label: string; shortLabel: string }[] = [
 
 export function RequestCard({ request, onFilterChange, compact }: RequestCardProps) {
   const timeAgo = getTimeAgo(request.timestamp);
-  const { archiveRequest, updateCategory, updatePriority, updateRequestType, updateStatus } = useRequests();
+  const { archiveRequest, updateCategory, updatePriority, updateRequestType, updateStatus, deleteStatusComment } = useRequests();
   const { user } = useUser();
   const [statusDialogOpen, setStatusDialogOpen] = useState(false);
   const [pendingStatus, setPendingStatus] = useState<Status | null>(null);
+  const [dialogMode, setDialogMode] = useState<'add' | 'view'>('add');
 
   const handleFilterClick = (type: string, value: string) => {
     onFilterChange?.({ type, value });
   };
 
   const handleStatusClick = (status: Status) => {
+    const isCurrentStatus = request.status === status;
     setPendingStatus(status);
+    setDialogMode(isCurrentStatus ? 'view' : 'add');
     setStatusDialogOpen(true);
   };
 
   const handleStatusConfirm = (comment: string) => {
     if (pendingStatus) {
-      updateStatus(request.id, pendingStatus, user.name, comment);
+      if (dialogMode === 'view') {
+        // View mode: just add comment, don't change status
+        if (comment.trim()) {
+          updateStatus(request.id, request.status, user.name, comment);
+        }
+      } else {
+        updateStatus(request.id, pendingStatus, user.name, comment || undefined);
+      }
       setPendingStatus(null);
     }
   };
 
+  const handleDeleteComment = (index: number) => {
+    if (pendingStatus) {
+      deleteStatusComment(request.id, pendingStatus, index);
+    }
+  };
+
   const currentStatusIndex = statusFlow.findIndex(s => s.status === request.status);
+
+  const getTotalComments = () => {
+    if (!request.statusComments) return 0;
+    return Object.values(request.statusComments).reduce((sum, arr) => sum + (arr?.length || 0), 0);
+  };
+  const totalComments = getTotalComments();
 
   return (
     <Card className={cn(
@@ -166,14 +188,14 @@ export function RequestCard({ request, onFilterChange, compact }: RequestCardPro
         <div className="flex items-center gap-0.5 bg-muted/50 rounded-full p-0.5 shrink-0">
           {statusFlow.map((item, index) => {
             const isActive = request.status === item.status;
-            const isPassed = index < currentStatusIndex;
+            const commentCount = request.statusComments?.[item.status]?.length || 0;
             return (
               <button
                 key={item.status}
                 onClick={() => handleStatusClick(item.status)}
                 title={item.label}
                 className={cn(
-                  "px-2.5 py-1 text-xs font-medium rounded-full transition-all",
+                  "relative px-2.5 py-1 text-xs font-medium rounded-full transition-all",
                   "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1",
                   isActive && index === 0 && "bg-gray-400 text-white shadow-sm",
                   isActive && index === 1 && "bg-yellow-500 text-white shadow-sm",
@@ -184,6 +206,11 @@ export function RequestCard({ request, onFilterChange, compact }: RequestCardPro
               >
                 <span className="hidden sm:inline">{item.label}</span>
                 <span className="sm:hidden">{item.shortLabel}</span>
+                {commentCount > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+                    {commentCount}
+                  </span>
+                )}
               </button>
             );
           })}
@@ -239,8 +266,10 @@ export function RequestCard({ request, onFilterChange, compact }: RequestCardPro
             if (!open) setPendingStatus(null);
           }}
           status={pendingStatus}
-          currentComment={request.statusComments?.[pendingStatus] || ''}
+          comments={request.statusComments?.[pendingStatus] || []}
           onConfirm={handleStatusConfirm}
+          onDeleteComment={handleDeleteComment}
+          mode={dialogMode}
         />
       )}
     </Card>

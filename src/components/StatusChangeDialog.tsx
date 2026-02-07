@@ -1,7 +1,10 @@
 import { useState } from 'react';
+import { Trash2 } from 'lucide-react';
 import { Status } from '@/types/requests';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { cn } from '@/lib/utils';
 import {
   Dialog,
   DialogContent,
@@ -32,24 +35,28 @@ interface StatusChangeDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   status: Status;
-  currentComment?: string;
+  comments?: string[];
   onConfirm: (comment: string) => void;
+  onDeleteComment?: (index: number) => void;
+  mode: 'add' | 'view';
 }
 
 export function StatusChangeDialog({
   open,
   onOpenChange,
   status,
-  currentComment = '',
+  comments = [],
   onConfirm,
+  onDeleteComment,
+  mode,
 }: StatusChangeDialogProps) {
-  const [comment, setComment] = useState(currentComment);
+  const [comment, setComment] = useState('');
   const [showResolvedConfirm, setShowResolvedConfirm] = useState(false);
 
   const isResolvido = status === 'resolvido';
 
   const handleSubmit = () => {
-    if (isResolvido) {
+    if (mode === 'add' && isResolvido) {
       setShowResolvedConfirm(true);
     } else {
       onConfirm(comment);
@@ -79,23 +86,56 @@ export function StatusChangeDialog({
           <DialogHeader>
             <DialogTitle>Status: {statusLabelsMap[status]}</DialogTitle>
             <DialogDescription>
-              Adicione um comentário sobre esta alteração de status.
+              {mode === 'view'
+                ? `Comentários para o status "${statusLabelsMap[status]}".`
+                : 'Adicione um comentário sobre esta alteração de status.'}
             </DialogDescription>
           </DialogHeader>
+
+          {/* Existing comments */}
+          {comments.length > 0 && (
+            <ScrollArea className={cn("rounded-md border", comments.length > 3 ? "h-40" : "")}>
+              <div className="p-3 space-y-2">
+                {comments.map((c, i) => (
+                  <div key={i} className="flex items-start justify-between gap-2 rounded-md bg-muted/50 p-2 text-sm">
+                    <span className="flex-1 text-foreground">{c}</span>
+                    {onDeleteComment && (
+                      <button
+                        onClick={() => onDeleteComment(i)}
+                        className="shrink-0 text-muted-foreground hover:text-destructive transition-colors"
+                        title="Apagar comentário"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
+          )}
+
+          {/* Add comment textarea */}
           <Textarea
             placeholder="Comentário (opcional)..."
             value={comment}
             onChange={(e) => setComment(e.target.value)}
-            className="min-h-[100px]"
+            className="min-h-[80px]"
             maxLength={500}
           />
+
           <DialogFooter className="gap-2">
             <Button variant="outline" onClick={handleCancel}>
               Cancelar
             </Button>
-            <Button onClick={handleSubmit}>
-              {isResolvido ? 'Marcar como Resolvido' : 'Confirmar'}
-            </Button>
+            {mode === 'add' ? (
+              <Button onClick={handleSubmit}>
+                {isResolvido ? 'Marcar como Resolvido' : 'Confirmar'}
+              </Button>
+            ) : (
+              <Button onClick={handleSubmit} disabled={!comment.trim()}>
+                Adicionar comentário
+              </Button>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>
