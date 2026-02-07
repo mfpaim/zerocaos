@@ -12,6 +12,7 @@ interface RequestsContextType {
   updatePriority: (id: string, priority: Priority) => void;
   updateRequestType: (id: string, requestType: RequestType) => void;
   updateStatus: (id: string, status: Status, userName?: string, comment?: string) => void;
+  deleteStatusComment: (id: string, status: Status, commentIndex: number) => void;
   getActiveRequests: () => Request[];
   getArchivedRequests: () => Request[];
   getStatusCounts: () => Record<Status, number>;
@@ -87,7 +88,11 @@ export function RequestsProvider({ children }: { children: ReactNode }) {
   const updateStatus = useCallback((id: string, status: Status, userName?: string, comment?: string) => {
     setRequests(prev => prev.map(req => {
       if (req.id === id) {
-        const updatedComments = { ...req.statusComments, [status]: comment || '' };
+        const existing = req.statusComments?.[status] || [];
+        const updatedComments = {
+          ...req.statusComments,
+          [status]: comment ? [...existing, comment] : existing,
+        };
         return {
           ...req,
           status,
@@ -95,6 +100,20 @@ export function RequestsProvider({ children }: { children: ReactNode }) {
           resolvedBy: status === 'resolvido' ? (userName || 'Administrador') : undefined,
           resolvedAt: status === 'resolvido' ? new Date() : undefined,
           statusComments: updatedComments,
+        };
+      }
+      return req;
+    }));
+  }, []);
+
+  const deleteStatusComment = useCallback((id: string, status: Status, commentIndex: number) => {
+    setRequests(prev => prev.map(req => {
+      if (req.id === id) {
+        const existing = [...(req.statusComments?.[status] || [])];
+        existing.splice(commentIndex, 1);
+        return {
+          ...req,
+          statusComments: { ...req.statusComments, [status]: existing },
         };
       }
       return req;
@@ -130,6 +149,7 @@ export function RequestsProvider({ children }: { children: ReactNode }) {
       updatePriority,
       updateRequestType,
       updateStatus,
+      deleteStatusComment,
       getActiveRequests,
       getArchivedRequests,
       getStatusCounts,
@@ -149,6 +169,7 @@ const defaultContext: RequestsContextType = {
   updatePriority: () => {},
   updateRequestType: () => {},
   updateStatus: () => {},
+  deleteStatusComment: () => {},
   getActiveRequests: () => initialRequests,
   getArchivedRequests: () => [],
   getStatusCounts: () => ({ pendente: 0, em_andamento: 0, respondido: 0, resolvido: 0 }),
