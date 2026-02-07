@@ -11,7 +11,7 @@ interface RequestsContextType {
   updateCategory: (id: string, category: Category) => void;
   updatePriority: (id: string, priority: Priority) => void;
   updateRequestType: (id: string, requestType: RequestType) => void;
-  updateStatus: (id: string, status: Status, userName?: string) => void;
+  updateStatus: (id: string, status: Status, userName?: string, comment?: string) => void;
   getActiveRequests: () => Request[];
   getArchivedRequests: () => Request[];
   getStatusCounts: () => Record<Status, number>;
@@ -84,15 +84,17 @@ export function RequestsProvider({ children }: { children: ReactNode }) {
     }));
   }, []);
 
-  const updateStatus = useCallback((id: string, status: Status, userName?: string) => {
+  const updateStatus = useCallback((id: string, status: Status, userName?: string, comment?: string) => {
     setRequests(prev => prev.map(req => {
       if (req.id === id) {
+        const updatedComments = { ...req.statusComments, [status]: comment || '' };
         return {
           ...req,
           status,
           isResolved: status === 'resolvido',
           resolvedBy: status === 'resolvido' ? (userName || 'Administrador') : undefined,
           resolvedAt: status === 'resolvido' ? new Date() : undefined,
+          statusComments: updatedComments,
         };
       }
       return req;

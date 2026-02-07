@@ -32,6 +32,7 @@ export interface Request {
   status: Status;
   resolvedBy?: string;
   resolvedAt?: Date;
+  statusComments?: Partial<Record<Status, string>>;
 }
 
 export interface GroupMember {

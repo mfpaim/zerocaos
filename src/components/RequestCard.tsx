@@ -1,7 +1,9 @@
+import { useState } from 'react';
 import { ExternalLink, Clock, Trash2, ChevronDown } from 'lucide-react';
 import { Request, Category, Priority, RequestType, Status, categoryLabels, priorityLabels, requestTypeLabels } from '@/types/requests';
 import { useUser } from '@/hooks/useUser';
 import { cn } from '@/lib/utils';
+import { StatusChangeDialog } from '@/components/StatusChangeDialog';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -69,9 +71,23 @@ export function RequestCard({ request, onFilterChange, compact }: RequestCardPro
   const timeAgo = getTimeAgo(request.timestamp);
   const { archiveRequest, updateCategory, updatePriority, updateRequestType, updateStatus } = useRequests();
   const { user } = useUser();
+  const [statusDialogOpen, setStatusDialogOpen] = useState(false);
+  const [pendingStatus, setPendingStatus] = useState<Status | null>(null);
 
   const handleFilterClick = (type: string, value: string) => {
     onFilterChange?.({ type, value });
+  };
+
+  const handleStatusClick = (status: Status) => {
+    setPendingStatus(status);
+    setStatusDialogOpen(true);
+  };
+
+  const handleStatusConfirm = (comment: string) => {
+    if (pendingStatus) {
+      updateStatus(request.id, pendingStatus, user.name, comment);
+      setPendingStatus(null);
+    }
   };
 
   const currentStatusIndex = statusFlow.findIndex(s => s.status === request.status);
@@ -154,7 +170,7 @@ export function RequestCard({ request, onFilterChange, compact }: RequestCardPro
             return (
               <button
                 key={item.status}
-                onClick={() => updateStatus(request.id, item.status, user.name)}
+                onClick={() => handleStatusClick(item.status)}
                 title={item.label}
                 className={cn(
                   "px-2.5 py-1 text-xs font-medium rounded-full transition-all",
@@ -215,6 +231,18 @@ export function RequestCard({ request, onFilterChange, compact }: RequestCardPro
           </Button>
         </div>
       </div>
+      {pendingStatus && (
+        <StatusChangeDialog
+          open={statusDialogOpen}
+          onOpenChange={(open) => {
+            setStatusDialogOpen(open);
+            if (!open) setPendingStatus(null);
+          }}
+          status={pendingStatus}
+          currentComment={request.statusComments?.[pendingStatus] || ''}
+          onConfirm={handleStatusConfirm}
+        />
+      )}
     </Card>
   );
 }
