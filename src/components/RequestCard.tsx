@@ -158,13 +158,12 @@ export function RequestCard({ request, onFilterChange, compact }: RequestCardPro
                 title={item.label}
                 className={cn(
                   "px-2.5 py-1 text-xs font-medium rounded-full transition-all",
-                  "hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1",
-                  isActive && index === 0 && "bg-gray-400 text-white",
-                  isActive && index === 1 && "bg-yellow-500 text-white",
-                  isActive && index === 2 && "bg-blue-500 text-white",
-                  isActive && index === 3 && "bg-green-500 text-white",
-                  !isActive && isPassed && "bg-muted text-muted-foreground/70",
-                  !isActive && !isPassed && "bg-transparent text-muted-foreground hover:bg-muted"
+                  "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1",
+                  isActive && index === 0 && "bg-gray-400 text-white shadow-sm",
+                  isActive && index === 1 && "bg-yellow-500 text-white shadow-sm",
+                  isActive && index === 2 && "bg-blue-500 text-white shadow-sm",
+                  isActive && index === 3 && "bg-green-500 text-white shadow-sm",
+                  !isActive && "bg-muted/60 text-muted-foreground/50 hover:bg-muted hover:text-muted-foreground"
                 )}
               >
                 <span className="hidden sm:inline">{item.label}</span>
