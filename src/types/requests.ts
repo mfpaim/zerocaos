@@ -16,6 +16,16 @@ export type RequestType = 'reclamacao' | 'sugestao' | 'solicitacao';
 
 export type Status = 'pendente' | 'em_andamento' | 'respondido' | 'resolvido';
 
+export interface CalendarEvent {
+  id: string;
+  requestId: string;
+  assignedTo: string; // user name
+  assignedBy: string; // user name
+  scheduledDate: Date;
+  scheduledTime: string; // HH:mm
+  note?: string;
+}
+
 export interface Request {
   id: string;
   groupId: string;
