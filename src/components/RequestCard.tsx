@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { ExternalLink, Clock, Trash2, ChevronDown } from 'lucide-react';
+import { ExternalLink, Clock, Trash2, ChevronDown, CalendarPlus } from 'lucide-react';
 import { Request, Category, Priority, RequestType, Status, categoryLabels, priorityLabels, requestTypeLabels } from '@/types/requests';
 import { useUser } from '@/hooks/useUser';
 import { cn } from '@/lib/utils';
 import { StatusChangeDialog } from '@/components/StatusChangeDialog';
+import { ScheduleDialog } from '@/components/ScheduleDialog';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -69,9 +70,10 @@ const statusFlow: { status: Status; label: string; shortLabel: string }[] = [
 
 export function RequestCard({ request, onFilterChange, compact }: RequestCardProps) {
   const timeAgo = getTimeAgo(request.timestamp);
-  const { archiveRequest, updateCategory, updatePriority, updateRequestType, updateStatus, deleteStatusComment } = useRequests();
+  const { archiveRequest, updateCategory, updatePriority, updateRequestType, updateStatus, deleteStatusComment, addCalendarEvent } = useRequests();
   const { user } = useUser();
   const [statusDialogOpen, setStatusDialogOpen] = useState(false);
+  const [scheduleDialogOpen, setScheduleDialogOpen] = useState(false);
   const [pendingStatus, setPendingStatus] = useState<Status | null>(null);
   const [dialogMode, setDialogMode] = useState<'add' | 'view'>('add');
 
@@ -238,8 +240,17 @@ export function RequestCard({ request, onFilterChange, compact }: RequestCardPro
           <span>{timeAgo}</span>
         </div>
 
-        {/* Actions: Ver Mensagem + Arquivar */}
+        {/* Actions: Agendar + Ver Mensagem + Arquivar */}
         <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setScheduleDialogOpen(true)}
+            title="Agendar no calendário"
+            className="text-primary hover:text-primary"
+          >
+            <CalendarPlus className="h-4 w-4" />
+          </Button>
           <Button variant="outline" size="sm" asChild>
             <a href={request.messageLink} target="_blank" rel="noopener noreferrer">
               <ExternalLink className="h-4 w-4 mr-1" />
@@ -272,6 +283,22 @@ export function RequestCard({ request, onFilterChange, compact }: RequestCardPro
           mode={dialogMode}
         />
       )}
+      <ScheduleDialog
+        open={scheduleDialogOpen}
+        onOpenChange={setScheduleDialogOpen}
+        requestSummary={`${request.groupName} — ${request.message}`}
+        onConfirm={(data) => {
+          addCalendarEvent({
+            requestId: request.id,
+            assignedTo: data.assignedTo,
+            assignedBy: user.name,
+            scheduledDate: data.scheduledDate,
+            scheduledTime: data.scheduledTime,
+            note: data.note,
+          });
+          setScheduleDialogOpen(false);
+        }}
+      />
     </Card>
   );
 }

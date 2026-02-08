@@ -1,10 +1,11 @@
 import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
-import { Request, Category, Priority, RequestType, Status, categoryPriority, priorityScores } from '@/types/requests';
+import { Request, Category, Priority, RequestType, Status, CalendarEvent, categoryPriority, priorityScores } from '@/types/requests';
 import { requests as initialRequests } from '@/data/mockData';
 
 interface RequestsContextType {
   requests: Request[];
   archivedIds: Set<string>;
+  calendarEvents: CalendarEvent[];
   archiveRequest: (id: string) => void;
   restoreRequest: (id: string) => void;
   deleteRequest: (id: string) => void;
@@ -13,6 +14,8 @@ interface RequestsContextType {
   updateRequestType: (id: string, requestType: RequestType) => void;
   updateStatus: (id: string, status: Status, userName?: string, comment?: string) => void;
   deleteStatusComment: (id: string, status: Status, commentIndex: number) => void;
+  addCalendarEvent: (event: Omit<CalendarEvent, 'id'>) => void;
+  removeCalendarEvent: (eventId: string) => void;
   getActiveRequests: () => Request[];
   getArchivedRequests: () => Request[];
   getStatusCounts: () => Record<Status, number>;
@@ -120,6 +123,17 @@ export function RequestsProvider({ children }: { children: ReactNode }) {
     }));
   }, []);
 
+  const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>([]);
+
+  const addCalendarEvent = useCallback((event: Omit<CalendarEvent, 'id'>) => {
+    const newEvent: CalendarEvent = { ...event, id: `evt-${Date.now()}-${Math.random().toString(36).slice(2, 7)}` };
+    setCalendarEvents(prev => [...prev, newEvent]);
+  }, []);
+
+  const removeCalendarEvent = useCallback((eventId: string) => {
+    setCalendarEvents(prev => prev.filter(e => e.id !== eventId));
+  }, []);
+
   const getActiveRequests = useCallback(() => {
     return requests.filter(r => !archivedIds.has(r.id));
   }, [requests, archivedIds]);
@@ -142,6 +156,7 @@ export function RequestsProvider({ children }: { children: ReactNode }) {
     <RequestsContext.Provider value={{
       requests,
       archivedIds,
+      calendarEvents,
       archiveRequest,
       restoreRequest,
       deleteRequest,
@@ -150,6 +165,8 @@ export function RequestsProvider({ children }: { children: ReactNode }) {
       updateRequestType,
       updateStatus,
       deleteStatusComment,
+      addCalendarEvent,
+      removeCalendarEvent,
       getActiveRequests,
       getArchivedRequests,
       getStatusCounts,
@@ -162,6 +179,7 @@ export function RequestsProvider({ children }: { children: ReactNode }) {
 const defaultContext: RequestsContextType = {
   requests: initialRequests,
   archivedIds: new Set(),
+  calendarEvents: [],
   archiveRequest: () => {},
   restoreRequest: () => {},
   deleteRequest: () => {},
@@ -170,6 +188,8 @@ const defaultContext: RequestsContextType = {
   updateRequestType: () => {},
   updateStatus: () => {},
   deleteStatusComment: () => {},
+  addCalendarEvent: () => {},
+  removeCalendarEvent: () => {},
   getActiveRequests: () => initialRequests,
   getArchivedRequests: () => [],
   getStatusCounts: () => ({ pendente: 0, em_andamento: 0, respondido: 0, resolvido: 0 }),
