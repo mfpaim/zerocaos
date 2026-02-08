@@ -5,6 +5,9 @@ import { RequestFilters } from '@/components/RequestFilters';
 import { KanbanCard } from '@/components/KanbanCard';
 import { Request, Status } from '@/types/requests';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { User } from 'lucide-react';
+import { systemUsers } from '@/components/ScheduleDialog';
 import { cn } from '@/lib/utils';
 
 const columns: { status: Status; label: string; color: string; bgColor: string }[] = [
@@ -23,9 +26,19 @@ export default function Kanban() {
   const [selectedPriority, setSelectedPriority] = useState('all');
   const [selectedRequestType, setSelectedRequestType] = useState('all');
   const [selectedStatus, setSelectedStatus] = useState('all');
+  const [selectedUser, setSelectedUser] = useState<string>('all');
+
+  const { calendarEvents } = useRequests();
+
+  // Get requests assigned to the selected user via calendar events
+  const userAssignedRequestIds = useMemo(() => {
+    if (selectedUser === 'all') return null;
+    return new Set(calendarEvents.filter(e => e.assignedTo === selectedUser).map(e => e.requestId));
+  }, [calendarEvents, selectedUser]);
 
   const filteredRequests = useMemo(() => {
     return activeRequests.filter((req) => {
+      if (userAssignedRequestIds && !userAssignedRequestIds.has(req.id)) return false;
       if (selectedGroup !== 'all' && req.groupId !== selectedGroup) return false;
       if (selectedCategory !== 'all' && req.category !== selectedCategory) return false;
       if (selectedPriority !== 'all' && req.priority !== selectedPriority) return false;
@@ -58,7 +71,23 @@ export default function Kanban() {
           <h1 className="text-2xl font-bold text-foreground">Kanban</h1>
           <p className="text-sm text-muted-foreground mt-1">Visualize solicitações por status</p>
         </div>
-        <DateIndicator />
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <User className="h-4 w-4 text-muted-foreground" />
+            <Select value={selectedUser} onValueChange={setSelectedUser}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Filtrar por usuário" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos os Usuários</SelectItem>
+                {systemUsers.map(u => (
+                  <SelectItem key={u.id} value={u.name}>{u.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <DateIndicator />
+        </div>
       </div>
 
       {/* Filters */}

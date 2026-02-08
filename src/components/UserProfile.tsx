@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { User, Settings, LogOut } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -34,6 +35,7 @@ interface UserProfileProps {
 }
 
 export function UserProfile({ user, onUserUpdate }: UserProfileProps) {
+  const navigate = useNavigate();
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [editName, setEditName] = useState(user.name);
   const [editEmail, setEditEmail] = useState(user.email);
@@ -70,8 +72,12 @@ export function UserProfile({ user, onUserUpdate }: UserProfileProps) {
             </div>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => setIsEditOpen(true)}>
+          <DropdownMenuItem onClick={() => navigate('/perfil')}>
             <User className="mr-2 h-4 w-4" />
+            <span>Ver Perfil</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setIsEditOpen(true)}>
+            <Settings className="mr-2 h-4 w-4" />
             <span>Editar Perfil</span>
           </DropdownMenuItem>
           <DropdownMenuItem>
