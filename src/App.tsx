@@ -14,6 +14,7 @@ import Archived from "./pages/Archived";
 import TalkToData from "./pages/TalkToData";
 import Kanban from "./pages/Kanban";
 import Resolvidos from "./pages/Resolvidos";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,6 +39,7 @@ const App = () => (
                   <Route path="/kanban" element={<Kanban />} />
                   <Route path="/resolvidos" element={<Resolvidos />} />
                   <Route path="/arquivados" element={<Archived />} />
+                  <Route path="/perfil" element={<Profile />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </main>
