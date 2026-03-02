@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { groups, requests } from '@/data/mockData';
 import { useRequests } from '@/hooks/useRequests';
 import { Card } from '@/components/ui/card';
@@ -266,7 +266,7 @@ const GroupDashboard = () => {
             <div className="space-y-3">
               {topSenders.map(([name, count]) => (
                 <div key={name} className="flex items-center justify-between">
-                  <span className="text-sm text-foreground truncate">{name}</span>
+                  <Link to={`/morador/${encodeURIComponent(name)}`} className="text-sm text-foreground truncate hover:text-primary hover:underline">{name}</Link>
                   <Badge variant="secondary" className="text-xs">{count} msg</Badge>
                 </div>
               ))}
@@ -322,7 +322,7 @@ const GroupDashboard = () => {
                     }`} />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-sm font-medium text-foreground">{req.senderName}</span>
+                        <Link to={`/morador/${encodeURIComponent(req.senderName)}`} className="text-sm font-medium text-foreground hover:text-primary hover:underline">{req.senderName}</Link>
                         <Badge variant="outline" className="text-[10px] px-1.5 py-0">
                           {statusLabels[req.status]}
                         </Badge>

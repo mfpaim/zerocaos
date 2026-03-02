@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import { ExternalLink, Trash2, Clock } from 'lucide-react';
 import { Request, categoryLabels, priorityLabels, requestTypeLabels } from '@/types/requests';
 import { cn } from '@/lib/utils';
@@ -27,6 +28,7 @@ function getTimeAgo(date: Date): string {
 
 export function KanbanCard({ request }: KanbanCardProps) {
   const { archiveRequest } = useRequests();
+  const navigate = useNavigate();
 
   return (
     <div className={cn(
@@ -43,7 +45,10 @@ export function KanbanCard({ request }: KanbanCardProps) {
       </div>
 
       {/* Sender */}
-      <p className="text-[11px] text-muted-foreground mb-1.5">{request.senderName}</p>
+      <p
+        className="text-[11px] text-muted-foreground mb-1.5 cursor-pointer hover:text-primary hover:underline"
+        onClick={() => navigate(`/morador/${encodeURIComponent(request.senderName)}`)}
+      >{request.senderName}</p>
 
       {/* Message */}
       <p className="text-xs text-foreground/90 line-clamp-2 mb-2 leading-relaxed">{request.message}</p>

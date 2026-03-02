@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ExternalLink, Clock, Trash2, ChevronDown, CalendarPlus } from 'lucide-react';
 import { Request, Category, Priority, RequestType, Status, categoryLabels, priorityLabels, requestTypeLabels } from '@/types/requests';
 import { useUser } from '@/hooks/useUser';
@@ -70,6 +71,7 @@ const statusFlow: { status: Status; label: string; shortLabel: string }[] = [
 
 export function RequestCard({ request, onFilterChange, compact }: RequestCardProps) {
   const timeAgo = getTimeAgo(request.timestamp);
+  const navigate = useNavigate();
   const { archiveRequest, updateCategory, updatePriority, updateRequestType, updateStatus, deleteStatusComment, addCalendarEvent } = useRequests();
   const { user } = useUser();
   const [statusDialogOpen, setStatusDialogOpen] = useState(false);
@@ -225,7 +227,7 @@ export function RequestCard({ request, onFilterChange, compact }: RequestCardPro
           {request.groupName}
         </button>
         <span className="mx-2">•</span>
-        <button className="hover:text-primary hover:underline" onClick={() => handleFilterClick('sender', request.senderName)}>
+        <button className="hover:text-primary hover:underline" onClick={() => navigate(`/morador/${encodeURIComponent(request.senderName)}`)}>
           {request.senderName}
         </button>
       </div>
