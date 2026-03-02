@@ -15,6 +15,7 @@ import TalkToData from "./pages/TalkToData";
 import Kanban from "./pages/Kanban";
 import Resolvidos from "./pages/Resolvidos";
 import Profile from "./pages/Profile";
+import GroupDashboard from "./pages/GroupDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,6 +35,7 @@ const App = () => (
                   <Route path="/" element={<Dashboard />} />
                   <Route path="/calendario" element={<Calendar />} />
                   <Route path="/grupos" element={<Groups />} />
+                  <Route path="/grupos/:id" element={<GroupDashboard />} />
                   <Route path="/estatisticas" element={<Statistics />} />
                   <Route path="/chat" element={<TalkToData />} />
                   <Route path="/kanban" element={<Kanban />} />
