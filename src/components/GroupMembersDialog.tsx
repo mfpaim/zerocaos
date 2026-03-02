@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { format, subDays, isAfter } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Users, Calendar, MessageSquare } from 'lucide-react';
@@ -34,6 +35,7 @@ const GroupMembersDialog = ({
   members,
 }: GroupMembersDialogProps) => {
   const [dateFilter, setDateFilter] = useState<string>('all');
+  const navigate = useNavigate();
 
   const filteredMembers = useMemo(() => {
     let filtered = [...members];
@@ -131,7 +133,10 @@ const GroupMembersDialog = ({
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-foreground truncate">
+                    <p
+                      className="font-medium text-foreground truncate cursor-pointer hover:text-primary hover:underline"
+                      onClick={() => { onOpenChange(false); navigate(`/morador/${encodeURIComponent(member.name)}`); }}
+                    >
                       {member.name}
                     </p>
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
