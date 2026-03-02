@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { groups, requests } from '@/data/mockData';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -7,6 +8,7 @@ import { Group } from '@/types/requests';
 import GroupMembersDialog from '@/components/GroupMembersDialog';
 
 const Groups = () => {
+  const navigate = useNavigate();
   const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -68,7 +70,11 @@ const Groups = () => {
       {/* Groups list */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {groupStats.map((group) => (
-          <Card key={group.id} className="p-5 bg-card hover:shadow-md transition-shadow">
+          <Card
+            key={group.id}
+            className="p-5 bg-card hover:shadow-md transition-shadow cursor-pointer"
+            onClick={() => navigate(`/grupos/${group.id}`)}
+          >
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <h3 className="font-semibold text-lg text-foreground">{group.name}</h3>
@@ -88,7 +94,7 @@ const Groups = () => {
                 </div>
                 {/* Members count - clickable */}
                 <button
-                  onClick={() => handleMembersClick(group)}
+                  onClick={(e) => { e.stopPropagation(); handleMembersClick(group); }}
                   className="flex items-center gap-1.5 mt-3 text-sm text-muted-foreground hover:text-sidebar-brand-start transition-colors group"
                 >
                   <Users className="h-4 w-4 group-hover:text-sidebar-brand-start transition-colors" />
